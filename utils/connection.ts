@@ -5,7 +5,7 @@ import type { EndpointInfo } from '../@types/types'
 const ENDPOINTS: EndpointInfo[] = [
   {
     name: 'mainnet',
-    url: process.env.MAINNET_RPC || 'https://nyc22.rpcpool.com',
+    url: process.env.MAINNET_RPC || 'https://mango.rpcpool.com',
   },
   {
     name: 'devnet',

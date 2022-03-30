@@ -1,6 +1,6 @@
-import DiscordIcon from './DiscordIcon'
-import GithubIcon from './GithubIcon'
-import TwitterIcon from './TwitterIcon'
+// import DiscordIcon from './DiscordIcon'
+// import GithubIcon from './GithubIcon'
+// import TwitterIcon from './TwitterIcon'
 
 const Footer = () => {
   const { REALM } = process.env

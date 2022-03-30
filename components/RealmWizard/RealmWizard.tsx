@@ -307,7 +307,7 @@ const RealmWizard: React.FC = () => {
     if (ctl && !ctl.isModeSelect()) {
       setCurrentStep(ctl.getNextStep(currentStep, StepDirection.PREV))
     } else {
-      router.push(fmtUrlWithCluster('/dao/66Du7mXgS2KMQBUk6m9h3TszMjqZqdWhsG3Duuf69VNW'))
+      router.push(fmtUrlWithCluster('/dao/ORCA'))
     }
   }
 

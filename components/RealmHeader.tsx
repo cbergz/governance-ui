@@ -28,7 +28,7 @@ const RealmHeader = () => {
         } mb-2 md:mb-4`}
       >
         {isBackNavVisible ? (
-          <Link href={fmtUrlWithCluster('/dao/66Du7mXgS2KMQBUk6m9h3TszMjqZqdWhsG3Duuf69VNW')}>
+          <Link href={fmtUrlWithCluster('/dao/ORCA')}>
             <a className="default-transition flex items-center text-fgd-2 text-sm transition-all hover:text-fgd-3">
               <ChevronLeftIcon className="h-6 w-6 " />
               Back

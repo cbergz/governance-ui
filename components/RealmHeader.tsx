@@ -1,7 +1,7 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
 import { CogIcon, UsersIcon } from '@heroicons/react/outline'
-import { ChevronLeftIcon, BadgeCheckIcon } from '@heroicons/react/solid'
+import { BadgeCheckIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
 import { ExternalLinkIcon } from '@heroicons/react/outline'
@@ -29,10 +29,6 @@ const RealmHeader = () => {
       >
         {isBackNavVisible ? (
           <Link href={fmtUrlWithCluster('/dao/ORCA')}>
-            <a className="default-transition flex items-center text-fgd-2 text-sm transition-all hover:text-fgd-3">
-              <ChevronLeftIcon className="h-6 w-6 " />
-              Back
-            </a>
           </Link>
         ) : null}
       </div>

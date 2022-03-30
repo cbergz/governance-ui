@@ -14,10 +14,10 @@ export default function useRouterHistory() {
       return history[history.length - 1]
     } else if (symbol) {
       //if we have dao symbol we will redirect to dao home page
-      return fmtUrlWithCluster(`/dao/${symbol}/`)
+      return fmtUrlWithCluster(`/dao/ORCA/`)
     } else {
       //if user came here and dont have any dao symbol we will redirect to /realms page as home
-      return fmtUrlWithCluster('/realms')
+      return fmtUrlWithCluster('/dao/ORCA')
     }
   }
   return {

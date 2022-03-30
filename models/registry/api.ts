@@ -1,4 +1,4 @@
-import { getRealms, PROGRAM_VERSION_V1, Realm } from '@solana/spl-governance'
+import { getRealms, PROGRAM_VERSION_V1, PROGRAM_VERSION_V2, Realm } from '@solana/spl-governance'
 
 import { ProgramAccount } from '@solana/spl-governance'
 import { PublicKey } from '@solana/web3.js'
@@ -39,7 +39,7 @@ export interface RealmInfo {
 
 export function getProgramVersionForRealm(realmInfo: RealmInfo) {
   // TODO: as a temp fix V1 is returned by default
-  return realmInfo?.programVersion ?? PROGRAM_VERSION_V1
+  return PROGRAM_VERSION_V2
 }
 
 interface RealmInfoAsJSON

@@ -49,7 +49,7 @@ const SetRealmAuthorityModal = ({
       sendingMessage: `Setting authority`,
       successMessage: `Authority set`,
     })
-    //await fetchAllRealms(realmInfo!.programId)
+    await fetchAllRealms(realmInfo!.programId)
     await fetchRealm(realmInfo!.programId, realmInfo!.realmId)
     setSettingAuthority(false)
     closeModal()

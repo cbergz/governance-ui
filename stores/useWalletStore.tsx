@@ -172,7 +172,7 @@ const useWalletStore = create<WalletStore>((set, get) => ({
         set((s) => {
           s.selectedRealm.programVersion = programVersion
         })
-        //await actions.fetchAllRealms(programId)
+        await actions.fetchAllRealms(programId)
         actions.fetchRealm(programId, realmId)
       }
     },

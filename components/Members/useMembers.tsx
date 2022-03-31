@@ -211,7 +211,7 @@ export default function useMembers() {
       let members = [...membersWithTokensDeposited]
       const councilMembers = await fetchCouncilMembersWithTokensOutsideRealm()
       const communityMembers = await fetchCommunityMembersATAS()
-      members = matchMembers(members, councilMembers, 'council', true)
+      members = matchMembers(members, councilMembers, 'admin', true)
       members = matchMembers(members, communityMembers, 'community')
       setMembers(members)
     }

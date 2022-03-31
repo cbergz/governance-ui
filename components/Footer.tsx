@@ -37,7 +37,7 @@ const Footer = () => {
             target="_blank"
             className="text-white text-base font-bold hover:text-primary-dark transition-all duration-200"
           >
-            Swap
+            <img src="/img/orcaicon.svg" className="h-8 mr-3" />
           </a>
           <a
             rel="noreferrer"

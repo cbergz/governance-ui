@@ -192,7 +192,7 @@ const MemberOverview = ({ member }: { member: Member }) => {
         )}
         {councilAmount && (
           <div className="bg-bkg-1 px-4 py-2 rounded-md w-full break-all">
-            <p>Council Votes</p>
+            <p>Admin Votes</p>
             <div className="font-bold text-fgd-1 text-2xl">{councilAmount}</div>
           </div>
         )}

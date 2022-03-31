@@ -98,7 +98,7 @@ const MemberItem = ({ item }: { item: Member }) => {
           )}
           {councilAmount && (
             <span className="flex items-center">
-              Council Votes {councilAmount}{' '}
+              Admin Votes {councilAmount}{' '}
               {hasCouncilTokenOutsideRealm && (
                 <LogoutIcon className="w-3 h-3 ml-1"></LogoutIcon>
               )}

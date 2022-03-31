@@ -100,7 +100,7 @@ const MembersTabs: FunctionComponent<MembersTabsProps> = ({
                   )}
                   {councilAmount && (
                     <span className="flex items-center">
-                      Council Votes {councilAmount}{' '}
+                      Admin Votes {councilAmount}{' '}
                     </span>
                   )}
                 </span>

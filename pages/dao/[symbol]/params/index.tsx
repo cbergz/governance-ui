@@ -145,7 +145,7 @@ const Params = () => {
                 {councilMintPk && (
                   <DisplayField
                     padding
-                    label="Council Mint"
+                    label="Admin Token Mint"
                     val={councilMintPk}
                   />
                 )}
@@ -310,7 +310,7 @@ const Params = () => {
                     )}
                     {councilMint && (
                       <DisplayField
-                        label="Min council tokens to create a proposal"
+                        label="Min admin tokens to create a proposal"
                         padding
                         val={fmtMintAmount(
                           councilMint,

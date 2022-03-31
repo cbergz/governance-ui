@@ -138,64 +138,8 @@ export default function useGovernanceAssets() {
   )
   const availableInstructions = [
     {
-      id: Instructions.Transfer,
-      name: 'Transfer Tokens',
-      isVisible: canUseTokenTransferInstruction,
-    },
-    {
-      id: Instructions.Grant,
-      name: 'Grant',
-      isVisible:
-        canUseTokenTransferInstruction &&
-        currentPluginPk &&
-        vsrPluginsPks.includes(currentPluginPk.toBase58()),
-    },
-    {
-      id: Instructions.Clawback,
-      name: 'Clawback',
-      isVisible:
-        canUseTokenTransferInstruction &&
-        currentPluginPk &&
-        vsrPluginsPks.includes(currentPluginPk.toBase58()),
-    },
-    {
-      id: Instructions.MangoChangePerpMarket,
-      name: 'Mango: Change Perp Market',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
-      id: Instructions.MangoChangeSpotMarket,
-      name: 'Mango: Change Spot Market',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
-      id: Instructions.MangoChangeReferralFeeParams,
-      name: 'Mango: Change Referral Fee Params',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
-      id: Instructions.MangoChangeMaxAccounts,
-      name: 'Mango: Change Max Accounts',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
-      id: Instructions.MangoAddOracle,
-      name: 'Mango: Add Oracle',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
-      id: Instructions.MangoAddSpotMarket,
-      name: 'Mango: Add Spot Market',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
-      id: Instructions.MangoCreatePerpMarket,
-      name: 'Mango: Create Perp Market',
-      isVisible: canUseProgramUpgradeInstruction && symbol === 'MNGO',
-    },
-    {
       id: Instructions.None,
-      name: 'Offchain Vote',
+      name: 'Offchain Instructions',
       isVisible:
         realm &&
         Object.values(governances).some((g) =>

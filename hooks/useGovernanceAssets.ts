@@ -148,7 +148,7 @@ export default function useGovernanceAssets() {
     },
     {
       id: Instructions.Mint,
-      name: 'Mint Council Tokens',
+      name: 'Mint Admin Tokens',
       isVisible: canUseMintInstruction,
     },
     {
@@ -158,7 +158,7 @@ export default function useGovernanceAssets() {
     },
     {
       id: Instructions.ProgramUpgrade,
-      name: 'Upgrade Program',
+      name: 'Upgrade Governance Program',
       isVisible: canUseProgramUpgradeInstruction,
     },
     {

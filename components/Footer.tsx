@@ -1,6 +1,6 @@
-// import DiscordIcon from './DiscordIcon'
+import DiscordIcon from './DiscordIcon'
 // import GithubIcon from './GithubIcon'
-// import TwitterIcon from './TwitterIcon'
+import TwitterIcon from './TwitterIcon'
 
 const Footer = () => {
   const { REALM } = process.env
@@ -30,32 +30,40 @@ const Footer = () => {
           </div>
         </div> */}
 
-        {/* <div className="flex justify-center items-center gap-x-10 sm:gap-x-20 md:gap-x-24">
+        <div className="flex justify-center items-center gap-x-10 sm:gap-x-20 md:gap-x-24">
+        <a
+            rel="noreferrer"
+            href="https://www.orca.so/"
+            target="_blank"
+            className="text-white text-base font-bold hover:text-primary-dark transition-all duration-200"
+          >
+            Swap
+          </a>
           <a
             rel="noreferrer"
             target="_blank"
-            href="https://twitter.com/solana"
+            href="https://twitter.com/orca_sa"
             className="text-primary-light text-base font-light transform transition duration-500 hover:scale-125 shadow-sm"
           >
             <TwitterIcon className="" />
           </a>
-          <a
+          {/* <a
             rel="noreferrer"
             target="_blank"
             href="https://github.com/solana-labs/governance-ui"
             className="text-primary-light text-base font-light transform transition duration-500 hover:scale-125  shadow-sm"
           >
             <GithubIcon className="" />
-          </a>
+          </a> */}
           <a
             rel="noreferrer"
             target="_blank"
-            href="https://discord.com/invite/VsPbrK2hJk"
+            href="https://discord.com/invite/nSwGWn5KSG"
             className="text-primary-light text-base font-light transform transition duration-500 hover:scale-125 shadow-sm"
           >
             <DiscordIcon className="" />
           </a>
-        </div> */}
+        </div>
 
         <div className=" justify-center items-center gap-x-1   hidden md:flex ">
           <p className="text-white text-base font-light cursor-default ">

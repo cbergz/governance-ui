@@ -1,12 +1,11 @@
 [
   {
     "symbol": "ORCA",
-    "displayName": "Orca Governance",
+    "displayName": "Orca DAO",
     "programId": "J9uWvULFL47gtCPvgR3oN7W357iehn5WF2Vn9MJvcSxz",
     "realmId": "66Du7mXgS2KMQBUk6m9h3TszMjqZqdWhsG3Duuf69VNW",
     "website": "https://orca.so",
-    "twitter": "@orca_so",
-    "ogImage": "/realms/Orca/img/orca.svg"
+    "twitter": "@orca_so"
   },
   {
     "symbol": "Ukraine",

@@ -15,7 +15,7 @@ const RealmHeader = () => {
   const { REALM } = process.env
   const { activeMembers } = useMembers()
 
-  const isBackNavVisible = realmInfo?.symbol !== REALM // hide backnav for the default realm
+  const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
 
   const explorerHost = getRealmExplorerHost(realmInfo)
   const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`

@@ -11,7 +11,7 @@ const NavBar = () => {
       <div className="col-span-12 xl:col-start-2 xl:col-span-10 flex h-20 items-center justify-between px-4 md:px-8 xl:px-4">
         <Link href={fmtUrlWithCluster('/dao/ORCA')}>
           <div className="cursor-pointer flex items-center">
-            <img src="/img/orca.svg" className="h-8 mr-3" />
+            <img src="/img/orcatext.svg" className="h-8 mr-3" />
             {/* <h1 className="text-lg">Sierra</h1> */}
           </div>
         </Link>

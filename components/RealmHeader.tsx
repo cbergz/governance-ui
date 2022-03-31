@@ -1,12 +1,12 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
 import { CogIcon, UsersIcon } from '@heroicons/react/outline'
-import { ChevronLeftIcon, BadgeCheckIcon } from '@heroicons/react/solid'
+import { ChevronLeftIcon, /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
 import { ExternalLinkIcon } from '@heroicons/react/outline'
 import { getRealmExplorerHost } from 'tools/routing'
-import Tooltip from './Tooltip'
+// import Tooltip from './Tooltip'
 import useMembers from './Members/useMembers'
 
 const RealmHeader = () => {
@@ -40,7 +40,7 @@ const RealmHeader = () => {
         {realmDisplayName ? (
           <div className="flex items-center">
             <div className="flex flex-col md:flex-row items-center pb-3 md:pb-0">
-              {realmInfo?.ogImage ? (
+              {/* {realmInfo?.ogImage ? (
                 <img
                   className="flex-shrink-0 mb-2 md:mb-0 w-8"
                   src={realmInfo?.ogImage}
@@ -49,14 +49,14 @@ const RealmHeader = () => {
                 <div className="bg-[rgba(255,255,255,0.1)] h-14 w-14 flex font-bold items-center justify-center rounded-full text-fgd-3">
                   {realmDisplayName?.charAt(0)}
                 </div>
-              )}
+              )} */}
               <div className="flex items-center">
                 <h1 className="ml-3">{realmDisplayName}</h1>
-                {realmInfo?.isCertified ? (
+                {/* {realmInfo?.isCertified ? (
                   <Tooltip content="Certified DAO">
                     <BadgeCheckIcon className="cursor-help h-5 ml-1.5 text-green w-5" />
                   </Tooltip>
-                ) : null}
+                ) : null} */}
               </div>
             </div>
           </div>

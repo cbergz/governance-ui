@@ -12,7 +12,7 @@ import useMembers from './Members/useMembers'
 const RealmHeader = () => {
   const { fmtUrlWithCluster } = useQueryContext()
   const { realm, realmInfo, realmDisplayName, symbol } = useRealm()
-  const { REALM } = process.env
+  //const { REALM } = process.env
   const { activeMembers } = useMembers()
 
   const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm

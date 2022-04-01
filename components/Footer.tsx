@@ -9,16 +9,16 @@ const Footer = () => {
   else
     return (
       <div className="flex flex-row h-20   justify-around bottom-0 bg-bkg-1 gap-y-8 md:gap-y-0 w-full absolute left-0  px-12 border-t border-primary-light">
-        {/* <div className="flex justify-center  items-center gap-x-5   md:gap-x-6  ">
+        <div className="flex justify-center  items-center gap-x-5   md:gap-x-6  ">
           <a
             rel="noreferrer"
-            href="https://docs.realms.today/"
+            href="https://forums.orca.so/"
             target="_blank"
             className="text-white text-base font-bold hover:text-primary-dark transition-all duration-200"
           >
-            Docs
+            Forum
           </a>
-          <div className=" justify-center  hidden md:flex  items-center gap-x-8 py-2 ">
+          {/* <div className=" justify-center  hidden md:flex  items-center gap-x-8 py-2 ">
             <a
               rel="noreferrer"
               href="https://github.com/solana-labs/solana-program-library/blob/master/governance/README.md"
@@ -27,8 +27,8 @@ const Footer = () => {
             >
               Programs Github
             </a>
-          </div>
-        </div> */}
+          </div> */}
+        </div>
 
         <div className="flex justify-center items-center gap-x-10 sm:gap-x-20 md:gap-x-24">
         <a
@@ -42,7 +42,7 @@ const Footer = () => {
           <a
             rel="noreferrer"
             target="_blank"
-            href="https://twitter.com/orca_sa"
+            href="https://twitter.com/orca_so"
             className="text-primary-light text-base font-light transform transition duration-500 hover:scale-125 shadow-sm"
           >
             <TwitterIcon className="" />

@@ -36,7 +36,7 @@ const MemberItem = ({ item }: { item: Member }) => {
       ? useMemo(() => fmtMintAmount(mint, communityVotes), [item.walletAddress])
       : null
   const councilAmount =
-    councilVotes && !councilVotes.isZero()
+    councilVotes /*&& !councilVotes.isZero()*/
       ? useMemo(() => fmtMintAmount(councilMint, councilVotes), [
           item.walletAddress,
         ])

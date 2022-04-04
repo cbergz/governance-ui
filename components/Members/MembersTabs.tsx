@@ -67,7 +67,7 @@ const MembersTabs: FunctionComponent<MembersTabsProps> = ({
             ? fmtMintAmount(mint, communityVotes)
             : null
         const councilAmount =
-          councilVotes && !councilVotes.isZero()
+          councilVotes /*&& !councilVotes.isZero()*/
             ? fmtMintAmount(councilMint, councilVotes)
             : null
         return (

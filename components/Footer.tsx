@@ -18,6 +18,14 @@ const Footer = () => {
           >
             Forum
           </a>
+          <a
+            rel="noreferrer"
+            href="https://docs.orca.so/orca-governance/governance-v0-user-guide"
+            target="_blank"
+            className="text-white text-base font-bold hover:text-primary-dark transition-all duration-200"
+          >
+            Guide
+          </a>
           {/* <div className=" justify-center  hidden md:flex  items-center gap-x-8 py-2 ">
             <a
               rel="noreferrer"

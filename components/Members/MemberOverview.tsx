@@ -56,7 +56,7 @@ const MemberOverview = ({ member }: { member: Member }) => {
 
   const councilAmount = useMemo(
     () =>
-      councilVotes && councilVotes && !councilVotes.isZero()
+      councilVotes && councilVotes /*&& !councilVotes.isZero()*/
         ? fmtMintAmount(councilMint, councilVotes)
         : '',
     [walletAddress]

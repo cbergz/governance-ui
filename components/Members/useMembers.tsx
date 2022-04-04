@@ -221,7 +221,7 @@ export default function useMembers() {
   }, [realm?.pubkey.toBase58()])
 
   const activeMembers: Member[] = members.filter(
-    (x) => !x.councilVotes.isZero() || !x.communityVotes.isZero()
+    (x) => /*!x.councilVotes.isZero() ||*/ !x.communityVotes.isZero()
   )
 
   return {

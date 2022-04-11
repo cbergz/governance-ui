@@ -1,10 +1,10 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
-import { CogIcon, UsersIcon } from '@heroicons/react/outline'
+import { CogIcon, UsersIcon, ChatAlt2Icon } from '@heroicons/react/outline'
 import { ChevronLeftIcon, /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
-import { ExternalLinkIcon } from '@heroicons/react/outline'
+// import { ExternalLinkIcon } from '@heroicons/react/outline'
 import { getRealmExplorerHost } from 'tools/routing'
 // import Tooltip from './Tooltip'
 import useMembers from './Members/useMembers'
@@ -19,6 +19,7 @@ const RealmHeader = () => {
 
   const explorerHost = getRealmExplorerHost(realmInfo)
   const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
+  const forumUrl = `https://forums.orca.so/`
 
   return (
     <div className="bg-bkg-3 px-4 md:px-6 pb-4 pt-4 md:pt-6 rounded-t-lg">
@@ -79,14 +80,12 @@ const RealmHeader = () => {
             </a>
           </Link>
 
-          <a
-            className="default-transition flex items-center text-fgd-2 hover:text-fgd-3 text-sm"
-            href={realmUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <ExternalLinkIcon className="flex-shrink-0 h-5 w-5" />
-          </a>
+          <Link href={forumUrl}>
+            <a className="default-transition flex items-center cursor-pointer text-fgd-2 hover:text-fgd-3 text-sm">
+              <ChatAlt2Icon className="flex-shrink-0 h-5 mr-1 w-5" />
+              Forum
+            </a>
+          </Link>
         </div>
       </div>
     </div>

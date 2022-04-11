@@ -5,7 +5,7 @@ import { ChevronLeftIcon, /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
 // import { ExternalLinkIcon } from '@heroicons/react/outline'
-import { getRealmExplorerHost } from 'tools/routing'
+// import { getRealmExplorerHost } from 'tools/routing'
 // import Tooltip from './Tooltip'
 import useMembers from './Members/useMembers'
 
@@ -17,8 +17,8 @@ const RealmHeader = () => {
 
   const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
 
-  const explorerHost = getRealmExplorerHost(realmInfo)
-  const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
+  // const explorerHost = getRealmExplorerHost(realmInfo)
+  // const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
   const forumUrl = `https://forums.orca.so/`
 
   return (

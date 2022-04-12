@@ -17,9 +17,9 @@ import Tabs from '@components/Tabs'
 import AboutRealm from '@components/AboutRealm'
 import Input from '@components/inputs/Input'
 import { SearchIcon } from '@heroicons/react/outline'
-// const AccountsCompactWrapper = dynamic(
-//   () => import('@components/TreasuryAccount/AccountsCompactWrapper')
-// )
+const DelegationCard = dynamic(
+  () => import('@components/Delegation/DelegationCard')
+)
 const AssetsCompactWrapper = dynamic(
   () => import('@components/AssetsList/AssetsCompactWrapper')
 )
@@ -235,7 +235,7 @@ const REALM = () => {
             <div className="col-span-12 md:col-span-5 lg:col-span-4 space-y-4">
               <TokenBalanceCardWrapper />
               <NFTSCompactWrapper />
-              {/* <AccountsCompactWrapper /> */}
+              <DelegationCard />
               <AssetsCompactWrapper />
             </div>
           </>

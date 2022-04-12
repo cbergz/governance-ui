@@ -21,8 +21,8 @@ import { fmtMintAmount } from '@tools/sdk/units'
 import { getMintMetadata } from '../instructions/programs/splToken'
 import { getProgramVersionForRealm } from '@models/registry/api'
 import { useEffect, useState } from 'react'
-import Input from './inputs/Input'
-import Tooltip from './Tooltip'
+import Input from 'components/inputs/Input'
+import Tooltip from 'components/Tooltip'
 
 const DelegationCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
   const { councilMint, mint, realm } = useRealm()

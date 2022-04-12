@@ -28,7 +28,7 @@ const DelegationCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
   const { councilMint, mint, realm } = useRealm()
 //   const connected = useWalletStore((s) => s.connected)
   const wallet = useWalletStore((s) => s.current)
-  const [setTokenOwneRecordPk] = useState('')
+  const setTokenOwneRecordPk = useState('')
 //   const { fmtUrlWithCluster } = useQueryContext()
   const isDelegationVisible = (
     depositMint: MintInfo | undefined,
@@ -220,7 +220,7 @@ const Delegation = ({
         You have {tokensToShow} tokens available to {canExecuteAction}.
       </p>
 
-      <Tooltip>
+      <Tooltip content="This address will receive all your voting power to be used in governance voting and proposal.">
         <label className="border- mt-4 border-dashed border-fgd-3 inline-block leading-4 text-fgd-1 text-sm hover:cursor-help hover:border-b-0">
           Address to receive voting power
         </label>

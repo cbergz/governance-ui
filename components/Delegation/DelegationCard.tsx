@@ -26,7 +26,7 @@ import Tooltip from 'components/Tooltip'
 
 const DelegationCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
   const { councilMint, mint, realm } = useRealm()
-//   const connected = useWalletStore((s) => s.connected)
+  const connected = useWalletStore((s) => s.connected)
   const wallet = useWalletStore((s) => s.current)
   const setTokenOwneRecordPk = useState('')
 //   const { fmtUrlWithCluster } = useQueryContext()
@@ -47,8 +47,6 @@ const DelegationCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
     const getTokenOwnerRecord = async () => {
       const defaultMint = !mint?.supply.isZero()
         ? realm!.account.communityMint
-        : !councilMint?.supply.isZero()
-        ? realm!.account.config.councilMint
         : undefined
       const tokenOwnerRecordAddress = await getTokenOwnerRecordAddress(
         realm!.owner,

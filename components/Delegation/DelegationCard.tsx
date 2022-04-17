@@ -63,7 +63,7 @@ const Delegation = () => {
   }
 
   const postEnabled =
-    proposal && connected && ownVoterWeight.hasAnyWeight() && delegateeAddress
+    connected && ownVoterWeight.hasAnyWeight() && delegateeAddress
 
   const tooltipContent = !connected
     ? 'Connect your wallet to send a comment'

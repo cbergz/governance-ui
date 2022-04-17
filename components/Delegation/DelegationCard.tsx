@@ -45,7 +45,7 @@ const Delegation = () => {
     try {
       await setGovernanceDelegate(
         rpcContext,
-        realm!,
+        realm!.pubkey,
         realm!.account.communityMint,
         wallet!.publickey!,
         msg

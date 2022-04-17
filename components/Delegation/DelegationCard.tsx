@@ -1,249 +1,100 @@
-import { MintInfo } from '@solana/spl-token'
-import {
-  Keypair,
-  PublicKey,
-  Transaction,
-  TransactionInstruction,
-} from '@solana/web3.js'
-import BN from 'bn.js'
-import useRealm from '@hooks/useRealm'
-import {
-    getTokenOwnerRecordAddress,
-    Proposal,
-    withSetGovernanceDelegate,
-} from '@solana/spl-governance'
-import useWalletStore from '../../stores/useWalletStore'
-import { sendTransaction } from '@utils/send'
+import { useState } from 'react'
 import Button from '../Button'
-import { Option } from '@tools/core/option'
-import { GoverningTokenType } from '@solana/spl-governance'
-import { fmtMintAmount } from '@tools/sdk/units'
-import { getMintMetadata } from '../instructions/programs/splToken'
+import Input from '../inputs/Input'
+import useWalletStore from '../../stores/useWalletStore'
+import useRealm from '../../hooks/useRealm'
+import { RpcContext } from '@solana/spl-governance'
+import { PublicKey } from '@solana/web3.js'
+// import { ChatMessageBody, ChatMessageBodyType } from '@solana/spl-governance'
+import Loading from '../Loading'
+import Tooltip from '@components/Tooltip'
 import { getProgramVersionForRealm } from '@models/registry/api'
-import { useEffect, useState } from 'react'
-import Input from 'components/inputs/Input'
-import Tooltip from 'components/Tooltip'
+// import useVotePluginsClientStore from 'stores/useVotePluginsClientStore'
+import { setGovernanceDelegate } from 'actions/setGovernanceDelegate'
 
-const DelegationCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
-  const { councilMint, mint, realm } = useRealm()
+const Delegation = () => {
+  const [delegateeAddress, setDelegateeAddress] = useState('')
   const connected = useWalletStore((s) => s.connected)
-  const wallet = useWalletStore((s) => s.current)
-  const setTokenOwneRecordPk = useState('')
-//   const { fmtUrlWithCluster } = useQueryContext()
-  const isDelegationVisible = (
-    depositMint: MintInfo | undefined,
-    realmMint: PublicKey | undefined
-  ) =>
-    depositMint &&
-    (!proposal ||
-      (proposal.isSome() &&
-        proposal.value.governingTokenMint.toBase58() === realmMint?.toBase58()))
-
-  const communityDelegationVisible =
-    // If there is no council then community deposit is the only option to show
-    isDelegationVisible(mint, realm?.account.communityMint)
-
-  useEffect(() => {
-    const getTokenOwnerRecord = async () => {
-      const defaultMint = !mint?.supply.isZero()
-        ? realm!.account.communityMint
-        : undefined
-      const tokenOwnerRecordAddress = await getTokenOwnerRecordAddress(
-        realm!.owner,
-        realm!.pubkey,
-        defaultMint!,
-        wallet!.publicKey!
-      )
-      setTokenOwneRecordPk(tokenOwnerRecordAddress.toBase58())
-    }
-    if (realm && wallet?.connected) {
-      getTokenOwnerRecord()
-    }
-  }, [realm?.pubkey.toBase58(), wallet?.connected])
-  const hasLoaded = mint || councilMint
-
-  return (
-    <div className="bg-bkg-2 p-4 md:p-6 rounded-lg">
-      {hasLoaded ? (
-        <div className="space-y-4">
-          {communityDelegationVisible && (
-            <Delegation
-              mint={mint}
-              tokenType={GoverningTokenType.Community}
-              councilVote={false}
-            />
-          )}
-        </div>
-      ) : (
-        <>
-          <div className="animate-pulse bg-bkg-3 h-12 mb-4 rounded-lg" />
-          <div className="animate-pulse bg-bkg-3 h-10 rounded-lg" />
-        </>
-      )}
-    </div>
-  )
-}
-
-const Delegation = ({
-  mint,
-  tokenType,
-}: {
-  mint: MintInfo | undefined
-  tokenType: GoverningTokenType
-  councilVote?: boolean
-}) => {
-  const wallet = useWalletStore((s) => s.current)
-  const [comment, setComment] = useState('')
-  const connected = useWalletStore((s) => s.connected)
-  const connection = useWalletStore((s) => s.connection.current)
-  const { fetchWalletTokenAccounts, fetchRealm } = useWalletStore(
-    (s) => s.actions
-  )
   const {
-    realm,
+    ownVoterWeight,
     realmInfo,
-    realmTokenAccount,
-    ownTokenRecord,
-    ownCouncilTokenRecord,
-    councilTokenAccount,
-  } = useRealm()
-  // Do not show deposits for mints with zero supply because nobody can deposit anyway
-  if (!mint || mint.supply.isZero()) {
-    return null
-  }
+    realm } = useRealm()
+//   const client = useVotePluginsClientStore(
+//     (s) => s.state.currentRealmVotingClient
+//   )
+  const [submitting, setSubmitting] = useState(false)
 
-  const depositTokenRecord =
-    tokenType === GoverningTokenType.Community
-      ? ownTokenRecord
-      : ownCouncilTokenRecord
+  const wallet = useWalletStore((s) => s.current)
+  const connection = useWalletStore((s) => s.connection)
+  const { proposal } = useWalletStore((s) => s.selectedProposal)
+//   const { fetchChatMessages } = useWalletStore((s) => s.actions)
 
-  const depositTokenAccount =
-    tokenType === GoverningTokenType.Community
-      ? realmTokenAccount
-      : councilTokenAccount
+  const submitDelegation = async () => {
+    setSubmitting(true)
 
-  const depositMint =
-    tokenType === GoverningTokenType.Community
-      ? realm?.account.communityMint
-      : realm?.account.config.councilMint
-
-  const tokenName = getMintMetadata(depositMint)?.name ?? realm?.account.name
-
-  const depositTokenName = `${tokenName} ${
-    tokenType === GoverningTokenType.Community ? '' : 'Admin'
-  }`
-
-  const delegateTokens = async function () {
-    const instructions: TransactionInstruction[] = []
-    const signers: Keypair[] = []
-
-    const msg = new PublicKey(comment)
-
-    await withSetGovernanceDelegate(
-        instructions,
-        realmInfo!.programId,
-        getProgramVersionForRealm(realmInfo!),
-        realm!.pubkey,
-        depositTokenAccount!.account.mint,
-        wallet!.publicKey!,
-        wallet!.publicKey!,
-        msg
+    const rpcContext = new RpcContext(
+      proposal!.owner,
+      getProgramVersionForRealm(realmInfo!),
+      wallet!,
+      connection.current,
+      connection.endpoint
     )
 
-    const transaction = new Transaction()
-    transaction.add(...instructions)
+    const msg = new PublicKey(delegateeAddress)
 
-    await sendTransaction({
-      connection,
-      wallet,
-      transaction,
-      signers,
-      sendingMessage: 'Delegating voting power',
-      successMessage: 'Voting power has been delegated',
-    })
+    try {
+      await setGovernanceDelegate(
+        rpcContext,
+        realm!,
+        realm!.account.communityMint,
+        wallet!.publickey!,
+        msg
+      )
 
-    await fetchWalletTokenAccounts()
-    await fetchRealm(realmInfo!.programId, realmInfo!.realmId)
+      setDelegateeAddress('')
+    } catch (ex) {
+      console.error("Can't delegate tokens.", ex)
+      //TODO: How do we present transaction errors to users? Just the notification?
+    } finally {
+      setSubmitting(false)
+    }
+
+    // fetchChatMessages(proposal!.pubkey)
   }
 
-  const delegateAllTokens = async () =>
-    await delegateTokens()
+  const postEnabled =
+    proposal && connected && ownVoterWeight.hasAnyWeight() && delegateeAddress
 
-  const hasTokensInWallet =
-    depositTokenAccount && depositTokenAccount.account.amount.gt(new BN(0))
-
-  const hasTokensDeposited =
-    depositTokenRecord &&
-    depositTokenRecord.account.governingTokenDepositAmount.gt(new BN(0))
-
-  const depositTooltipContent = !connected
-    ? 'Connect your wallet to delegate'
-    : !hasTokensInWallet
-    ? "You don't have any governance tokens in your wallet to delegate."
+  const tooltipContent = !connected
+    ? 'Connect your wallet to send a comment'
+    : !ownVoterWeight.hasAnyWeight()
+    ? 'You need to have deposited some tokens to submit your comment.'
+    : !delegateeAddress
+    ? 'Enter an address to delegate'
     : ''
-
-  const availableTokens =
-    depositTokenRecord && mint
-      ? fmtMintAmount(
-          mint,
-          depositTokenRecord.account.governingTokenDepositAmount
-        )
-      : '0'
-
-  const canShowAvailableTokensMessage =
-    !hasTokensDeposited && hasTokensInWallet && connected
-  const canExecuteAction = !hasTokensDeposited ? 'delegate' : ''
-  const canDepositToken = !hasTokensDeposited && hasTokensInWallet
-  const tokensToShow =
-    canDepositToken && depositTokenAccount
-      ? fmtMintAmount(mint, depositTokenAccount.account.amount)
-      : canDepositToken
-      ? availableTokens
-      : 0
 
   return (
     <>
-      <div className="flex space-x-4 items-center mt-4">
-        <div className="bg-bkg-1 px-4 py-2 rounded-md w-full">
-          <p className="text-fgd-3 text-xs">{depositTokenName} Voting Power</p>
-          <p className="font-bold mb-0 text-fgd-1 text-xl">{availableTokens}</p>
-        </div>
-      </div>
+      <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+        <Input
+          value={delegateeAddress}
+          type="text"
+          onChange={(e) => setDelegateeAddress(e.target.value)}
+          placeholder="Delegatee Address"
+        />
 
-      <p
-        className={`mt-2 opacity-70 mb-4 ml-1 text-xs ${
-          canShowAvailableTokensMessage ? 'block' : 'hidden'
-        }`}
-      >
-        You have {tokensToShow} tokens available to {canExecuteAction}.
-      </p>
-
-      <Tooltip content="This address will receive all your voting power to be used in governance voting and proposal.">
-        <label className="border- mt-4 border-dashed border-fgd-3 inline-block leading-4 text-fgd-1 text-sm hover:cursor-help hover:border-b-0">
-          Address to receive voting power
-        </label>
-      </Tooltip>
-
-      <Input
-        className="mt-1.5"
-        value={comment}
-        type="text"
-        onChange={(e) => setComment(e.target.value)}
-      />
-
-      <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mt-6">
-        <Button
-          tooltipMessage={depositTooltipContent}
-          className="sm:w-1/2"
-          disabled={!connected || !hasTokensInWallet}
-          onClick={delegateAllTokens}
-        >
-          Delegate
-        </Button>
-
+        <Tooltip contentClassName="flex-shrink-0" content={tooltipContent}>
+          <Button
+            className="flex-shrink-0"
+            onClick={() => submitDelegation()}
+            disabled={!postEnabled || !delegateeAddress}
+          >
+            {submitting ? <Loading /> : <span>Delegate</span>}
+          </Button>
+        </Tooltip>
       </div>
     </>
   )
 }
 
-export default DelegationCard
+export default Delegation

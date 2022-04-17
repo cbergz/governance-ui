@@ -47,7 +47,7 @@ const Delegation = () => {
         rpcContext,
         realm!.pubkey,
         realm!.account.communityMint,
-        wallet!.publickey!,
+        wallet!.publicKey!,
         msg
       )
 

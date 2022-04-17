@@ -26,14 +26,14 @@ const Delegation = () => {
 
   const wallet = useWalletStore((s) => s.current)
   const connection = useWalletStore((s) => s.connection)
-  const { proposal } = useWalletStore((s) => s.selectedProposal)
+//   const { proposal } = useWalletStore((s) => s.selectedProposal)
 //   const { fetchChatMessages } = useWalletStore((s) => s.actions)
 
   const submitDelegation = async () => {
     setSubmitting(true)
 
     const rpcContext = new RpcContext(
-      proposal!.owner,
+      realm!.owner,
       getProgramVersionForRealm(realmInfo!),
       wallet!,
       connection.current,
@@ -62,7 +62,7 @@ const Delegation = () => {
     // fetchChatMessages(proposal!.pubkey)
   }
 
-  const postEnabled =
+  const delegationEnabled =
     connected && ownVoterWeight.hasAnyWeight() && delegateeAddress
 
   const tooltipContent = !connected
@@ -74,26 +74,29 @@ const Delegation = () => {
     : ''
 
   return (
-    <>
-      <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
-        <Input
-          value={delegateeAddress}
-          type="text"
-          onChange={(e) => setDelegateeAddress(e.target.value)}
-          placeholder="Delegatee Address"
-        />
+    <div className="bg-bkg-2 p-4 md:p-6 rounded-lg">
+      <div className="flex items-center justify-between">
+        <h3 className="mb-0">Delegation</h3>
+        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+            <Input
+            value={delegateeAddress}
+            type="text"
+            onChange={(e) => setDelegateeAddress(e.target.value)}
+            placeholder="Delegatee Address"
+            />
 
-        <Tooltip contentClassName="flex-shrink-0" content={tooltipContent}>
-          <Button
-            className="flex-shrink-0"
-            onClick={() => submitDelegation()}
-            disabled={!postEnabled || !delegateeAddress}
-          >
-            {submitting ? <Loading /> : <span>Delegate</span>}
-          </Button>
-        </Tooltip>
+            <Tooltip contentClassName="flex-shrink-0" content={tooltipContent}>
+            <Button
+                className="flex-shrink-0"
+                onClick={() => submitDelegation()}
+                disabled={!delegationEnabled || !delegateeAddress}
+            >
+                {submitting ? <Loading /> : <span>Delegate</span>}
+            </Button>
+            </Tooltip>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
 

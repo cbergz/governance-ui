@@ -19,6 +19,8 @@ export const setGovernanceDelegate = async (
     const signers: Keypair[] = []
     const instructions: TransactionInstruction[] = []
 
+    const governanceAuthority = walletPubkey
+
     const programVersion = await getGovernanceProgramVersion(
         connection,
         programId
@@ -31,7 +33,7 @@ export const setGovernanceDelegate = async (
         realmPk,
         governingTokenMint,
         tokenOwnerRecord,
-        tokenOwnerRecord,
+        governanceAuthority,
         newGovernanceDelegate)
     
     const transaction = new Transaction({ feePayer: walletPubkey })

@@ -45,7 +45,7 @@ const Delegation = () => {
     try {
       await setGovernanceDelegate(
         rpcContext,
-        realm!.pubkey,
+        realm!.pubkey!,
         realm!.account.communityMint,
         wallet!.publicKey!,
         msg
@@ -75,27 +75,27 @@ const Delegation = () => {
 
   return (
     <div className="bg-bkg-2 p-4 md:p-6 rounded-lg">
-      <div className="flex items-center justify-between">
-        <h3 className="mb-0">Delegation</h3>
-        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
-            <Input
-            value={delegateeAddress}
-            type="text"
-            onChange={(e) => setDelegateeAddress(e.target.value)}
-            placeholder="Delegatee Address"
-            />
-
-            <Tooltip contentClassName="flex-shrink-0" content={tooltipContent}>
-            <Button
-                className="flex-shrink-0"
-                onClick={() => submitDelegation()}
-                disabled={!delegationEnabled || !delegateeAddress}
-            >
-                {submitting ? <Loading /> : <span>Delegate</span>}
-            </Button>
-            </Tooltip>
+        <div className="flex items-center justify-between">
+            <h3 className="mb-0">Delegation</h3>
         </div>
-      </div>
+            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+                <Input
+                value={delegateeAddress}
+                type="text"
+                onChange={(e) => setDelegateeAddress(e.target.value)}
+                placeholder="Delegatee Address"
+                />
+
+                <Tooltip contentClassName="flex-shrink-0" content={tooltipContent}>
+                <Button
+                    className="flex-shrink-0"
+                    onClick={() => submitDelegation()}
+                    disabled={!delegationEnabled || !delegateeAddress}
+                >
+                    {submitting ? <Loading /> : <span>Delegate</span>}
+                </Button>
+                </Tooltip>
+            </div>
     </div>
   )
 }

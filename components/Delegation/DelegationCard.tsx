@@ -33,7 +33,7 @@ const Delegation = () => {
     setSubmitting(true)
 
     const rpcContext = new RpcContext(
-      realm!.owner,
+      realm!.pubkey!,
       getProgramVersionForRealm(realmInfo!),
       wallet!,
       connection.current,

@@ -93,6 +93,8 @@ interface WalletStore extends State {
   tokenAccounts: TokenProgramAccount<TokenAccount>[]
   set: (x: any) => void
   actions: any
+  selectedCouncilDelegate: string | undefined
+  selectedCommunityDelegate: string | undefined
 }
 
 const INITIAL_REALM_STATE = {
@@ -136,6 +138,8 @@ const useWalletStore = create<WalletStore>((set, get) => ({
   selectedProposal: INITIAL_PROPOSAL_STATE,
   providerUrl: undefined,
   tokenAccounts: [],
+  selectedCouncilDelegate: undefined,
+  selectedCommunityDelegate: undefined,
   set: (fn) => set(produce(fn)),
   actions: {
     async fetchRealmBySymbol(cluster: string, symbol: string) {
@@ -233,6 +237,18 @@ const useWalletStore = create<WalletStore>((set, get) => ({
       const set = get().set
       set((s) => {
         s.selectedRealm = INITIAL_REALM_STATE
+      })
+    },
+    selectCouncilDelegate(councilDelegate) {
+      const set = get().set
+      set((s) => {
+        s.selectedCouncilDelegate = councilDelegate
+      })
+    },
+    selectCommunityDelegate(communityDelegate) {
+      const set = get().set
+      set((s) => {
+        s.selectedCommunityDelegate = communityDelegate
       })
     },
     async fetchAllRealms(programId: PublicKey) {

@@ -14,15 +14,17 @@ import {
   Token,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token'
-import { Member } from 'utils/uiTypes/members'
+import { Member, Delegates } from 'utils/uiTypes/members'
 import { BN } from '@project-serum/anchor'
 import { PublicKey } from '@solana/web3.js'
 import { usePrevious } from '@hooks/usePrevious'
 import { capitalize } from '@utils/helpers'
+import useMembersStore from 'stores/useMembersStore'
 export default function useMembers() {
   const { tokenRecords, councilTokenOwnerRecords, realm } = useRealm()
   const connection = useWalletStore((s) => s.connection)
   const previousRealmPubKey = usePrevious(realm?.pubkey.toBase58()) as string
+  const setDelegates = useMembersStore((s) => s.setDelegates)
 
   const fetchCouncilMembersWithTokensOutsideRealm = async () => {
     if (realm?.account.config.councilMint) {
@@ -182,9 +184,13 @@ export default function useMembers() {
                   }
                   if (curr.community) {
                     obj['votesCasted'] += curr.community.account.totalVotesCount
+                    obj['delegateWalletCommunity'] =
+                      curr.community.account.governanceDelegate
                   }
                   if (curr.council) {
                     obj['votesCasted'] += curr.council.account.totalVotesCount
+                    obj['delegateWalletCouncil'] =
+                      curr.council.account.governanceDelegate
                   }
                   return obj
                 },
@@ -204,6 +210,61 @@ export default function useMembers() {
 
     [JSON.stringify(tokenRecordArray), JSON.stringify(councilRecordArray)]
   )
+
+  // Loop through Members list to get our delegates and their tokens
+  // Return a object of key: walletId and value: object of arrays for council/community tokenOwnerRecords.
+  const getDelegateWalletMap = (members: Array<Member>): Delegates => {
+    const delegateMap = {} as Delegates
+
+    members.forEach((member: Member) => {
+      if (member?.delegateWalletCouncil) {
+        const walletId = member?.delegateWalletCouncil.toBase58()
+        if (delegateMap[walletId]) {
+          const oldCouncilRecords = delegateMap[walletId].councilMembers || []
+
+          delegateMap[walletId] = {
+            ...delegateMap[walletId],
+            councilMembers: [...oldCouncilRecords, member],
+            councilTokenCount:
+              (delegateMap[walletId]?.councilTokenCount || 0) +
+              member.councilVotes.toNumber(),
+          }
+        } else {
+          delegateMap[walletId] = {
+            councilMembers: [member],
+            councilTokenCount: member.councilVotes
+              ? member.councilVotes.toNumber()
+              : 0,
+          }
+        }
+      }
+
+      if (member?.delegateWalletCommunity) {
+        const walletId = member?.delegateWalletCommunity.toBase58()
+        if (delegateMap[walletId]) {
+          const oldCommunityRecords =
+            delegateMap[walletId].communityMembers || []
+
+          delegateMap[walletId] = {
+            ...delegateMap[walletId],
+            communityMembers: [...oldCommunityRecords, member],
+            communityTokenCount:
+              (delegateMap[walletId]?.communityTokenCount || 0) +
+              member.communityVotes.toNumber(),
+          }
+        } else {
+          delegateMap[walletId] = {
+            communityMembers: [member],
+            communityTokenCount: member.communityVotes
+              ? member.communityVotes.toNumber()
+              : 0,
+          }
+        }
+      }
+    })
+
+    return delegateMap
+  }
 
   //Move to store if will be used more across application
   useEffect(() => {

@@ -1,12 +1,15 @@
+import dynamic from 'next/dynamic'
 import PreviousRouteBtn from '@components/PreviousRouteBtn'
 import { LinkIcon } from '@heroicons/react/outline'
 import MyProposalsBtn from 'pages/dao/[symbol]/proposal/components/MyProposalsBtn'
 import useWalletStore from 'stores/useWalletStore'
 
-const Account = ({ withHeader = true }: { withHeader?: boolean }) => {
+const DelegateCard = dynamic(() => import('@components/DelegateCard'))
+
+const AccountInner = ({ withHeader = true }: { withHeader?: boolean }) => {
   const connected = useWalletStore((s) => s.connected)
   return (
-    <div className="bg-bkg-2 col-span-12  p-4 md:p-6 rounded-lg">
+    <div className="bg-bkg-2 col-span-12 p-4 md:p-6 rounded-lg">
       {withHeader && (
         <>
           <div className="mb-4">
@@ -30,6 +33,28 @@ const Account = ({ withHeader = true }: { withHeader?: boolean }) => {
       </div>
     </div>
   )
+}
+
+const Account = ({ withHeader = true }: { withHeader?: boolean }) => {
+  if (withHeader) {
+    return (
+      <div className="grid grid-cols-12 gap-4">
+        <AccountInner withHeader={withHeader} />
+        <div className="md:w-1/2 col-span-12">
+          <DelegateCard />
+        </div>
+      </div>
+    )
+  } else {
+    return (
+      <>
+        <AccountInner withHeader={withHeader} />
+        <div className="md:w-1/2 col-span-12">
+          <DelegateCard />
+        </div>
+      </>
+    )
+  }
 }
 
 export default Account

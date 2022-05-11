@@ -133,7 +133,7 @@ export default function useMembers() {
         : [],
     [JSON.stringify(tokenRecords)]
   )
-  const [members, setMembers] = useState<Member[]>([])
+  const [setMembers] = useState<Member[]>([])
 
   const councilRecordArray: TokenRecordsWithWalletAddress[] = useMemo(
     () =>

@@ -25,7 +25,7 @@
   "dependencies": {
     "@blockworks-foundation/mango-client": "^3.3.16",
     "@blockworks-foundation/voter-stake-registry-client": "^0.2.0",
-    "@cardinal/namespaces-components": "^2.5.0",
+    "@cardinal/namespaces-components": "^3.0.3",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.3.0",
     "@friktion-labs/friktion-sdk": "^1.1.25",
@@ -59,6 +59,7 @@
     "next-themes": "^0.0.14",
     "next-transpile-modules": "^8.0.0",
     "node-fetch": "^2.6.1",
+    "pyth-staking-api": "^1.1.30",
     "rc-slider": "^9.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

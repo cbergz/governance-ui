@@ -1,7 +1,7 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
 import { CogIcon, UsersIcon, ChatAlt2Icon } from '@heroicons/react/outline'
-import { ChevronLeftIcon, /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
+import { ChevronLeftIcon /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
 // import { ExternalLinkIcon } from '@heroicons/react/outline'

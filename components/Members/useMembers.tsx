@@ -270,25 +270,28 @@ export default function useMembers() {
   useEffect(() => {
     const handleSetMembers = async () => {
       let members = [...membersWithTokensDeposited]
+
       const councilMembers = await fetchCouncilMembersWithTokensOutsideRealm()
       const communityMembers = await fetchCommunityMembersATAS()
-      members = matchMembers(members, councilMembers, 'admin', true)
+      members = matchMembers(members, councilMembers, 'council', true)
       members = matchMembers(members, communityMembers, 'community')
+
+      const delegateMap = getDelegateWalletMap(members)
+      setDelegates(delegateMap)
       setMembers(members)
     }
-    if (previousRealmPubKey !== realm?.pubkey.toBase58()) {
+    if (
+      realm?.pubkey &&
+      previousRealmPubKey !== realm?.pubkey.toBase58() &&
+      !realm?.account.config.useCommunityVoterWeightAddin
+    ) {
       handleSetMembers()
     }
+    if (
+      !realm?.pubkey ||
+      (realm.pubkey && realm?.account.config.useCommunityVoterWeightAddin)
+    ) {
+      setMembers([])
+    }
   }, [realm?.pubkey.toBase58()])
-
-  const activeMembers: Member[] = members.filter(
-    (x) => /*!x.councilVotes.isZero() ||*/ !x.communityVotes.isZero()
-  )
-
-  return {
-    tokenRecordArray,
-    councilRecordArray,
-    members,
-    activeMembers,
-  }
 }

@@ -66,10 +66,9 @@ const MembersTabs: FunctionComponent<MembersTabsProps> = ({
           communityVotes && !communityVotes.isZero()
             ? fmtMintAmount(mint, communityVotes)
             : null
-        const councilAmount =
-          councilVotes /*&& !councilVotes.isZero()*/
-            ? fmtMintAmount(councilMint, councilVotes)
-            : null
+        const councilAmount = councilVotes /*&& !councilVotes.isZero()*/
+          ? fmtMintAmount(councilMint, councilVotes)
+          : null
         return (
           <button
             key={walletAddress}

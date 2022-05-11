@@ -211,7 +211,7 @@ export default function useMembers() {
     [JSON.stringify(tokenRecordArray), JSON.stringify(councilRecordArray)]
   )
 
-    // Loop through Members list to get our delegates and their tokens
+  // Loop through Members list to get our delegates and their tokens
   // Return a object of key: walletId and value: object of arrays for council/community tokenOwnerRecords.
   const getDelegateWalletMap = (members: Array<Member>): Delegates => {
     const delegateMap = {} as Delegates
@@ -274,7 +274,7 @@ export default function useMembers() {
       const communityMembers = await fetchCommunityMembersATAS()
       members = matchMembers(members, councilMembers, 'admin', true)
       members = matchMembers(members, communityMembers, 'community')
-      
+
       const delegateMap = getDelegateWalletMap(members)
       setDelegates(delegateMap)
       setMembers(members)

@@ -1,4 +1,9 @@
-import { getRealms, PROGRAM_VERSION_V1, PROGRAM_VERSION_V2, Realm } from '@solana/spl-governance'
+import {
+  getRealms,
+  PROGRAM_VERSION_V1,
+  PROGRAM_VERSION_V2,
+  Realm,
+} from '@solana/spl-governance'
 
 import { ProgramAccount } from '@solana/spl-governance'
 import { PublicKey } from '@solana/web3.js'

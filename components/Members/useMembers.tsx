@@ -1,6 +1,6 @@
 import { TokenRecordsWithWalletAddress } from './types'
 import useRealm from '@hooks/useRealm'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import useWalletStore from 'stores/useWalletStore'
 import {
   getMultipleAccountInfoChunked,
@@ -24,6 +24,7 @@ export default function useMembers() {
   const { tokenRecords, councilTokenOwnerRecords, realm } = useRealm()
   const connection = useWalletStore((s) => s.connection)
   const previousRealmPubKey = usePrevious(realm?.pubkey.toBase58()) as string
+  const setMembers = useMembersStore((s) => s.setMembers)
   const setDelegates = useMembersStore((s) => s.setDelegates)
 
   const fetchCouncilMembersWithTokensOutsideRealm = async () => {
@@ -65,7 +66,8 @@ export default function useMembers() {
           ASSOCIATED_TOKEN_PROGRAM_ID, // always ASSOCIATED_TOKEN_PROGRAM_ID
           TOKEN_PROGRAM_ID, // always TOKEN_PROGRAM_ID
           realm!.account.communityMint, // mint
-          new PublicKey(walletAddress) // owner
+          new PublicKey(walletAddress), // owner
+          true
         )
         ATAS.push(ata)
       }
@@ -133,7 +135,6 @@ export default function useMembers() {
         : [],
     [JSON.stringify(tokenRecords)]
   )
-  const [setMembers] = useState<Member[]>([])
 
   const councilRecordArray: TokenRecordsWithWalletAddress[] = useMemo(
     () =>
@@ -208,7 +209,11 @@ export default function useMembers() {
         })
         .reverse(),
 
-    [JSON.stringify(tokenRecordArray), JSON.stringify(councilRecordArray)]
+    [
+      JSON.stringify(tokenRecordArray),
+      JSON.stringify(councilRecordArray),
+      realm?.pubkey.toBase58(),
+    ]
   )
 
   // Loop through Members list to get our delegates and their tokens

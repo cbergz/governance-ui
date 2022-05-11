@@ -1,6 +1,6 @@
 import useRealm from '@hooks/useRealm'
 import React, { useEffect, useState } from 'react'
-import useMembers from '@components/Members/useMembers'
+import useMembersStore from 'stores/useMembersStore'
 import MemberOverview from '@components/Members/MemberOverview'
 import { PlusCircleIcon, SearchIcon, UsersIcon } from '@heroicons/react/outline'
 import useGovernanceAssets from '@hooks/useGovernanceAssets'
@@ -21,7 +21,7 @@ const MembersPage = () => {
     toManyCouncilOutstandingProposalsForUse,
     toManyCommunityOutstandingProposalsForUser,
   } = useRealm()
-  const { activeMembers } = useMembers()
+  const activeMembers = useMembersStore((s) => s.compact.activeMembers)
   const connected = useWalletStore((s) => s.connected)
   const {
     canUseMintInstruction,

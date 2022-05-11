@@ -37,6 +37,7 @@ import useVotePluginsClientStore from 'stores/useVotePluginsClientStore'
 import Link from 'next/link'
 import useNftPluginStore from 'NftVotePlugin/store/nftPluginStore'
 import { vsrPluginsPks } from '@hooks/useVotingPlugins'
+import DelegateTokenBalanceCard from '@components/TokenBalance/DelegateTokenBalanceCard'
 
 const TokenBalanceCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
   const { councilMint, mint, realm, symbol } = useRealm()
@@ -120,6 +121,7 @@ const TokenBalanceCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
               councilVote={true}
             />
           )}
+          <DelegateTokenBalanceCard />
         </div>
       ) : (
         <>
@@ -420,7 +422,9 @@ const TokenDeposit = ({
             !connected ||
             !hasTokensDeposited ||
             (!councilVote && toManyCommunityOutstandingProposalsForUser) ||
-            toManyCouncilOutstandingProposalsForUse
+            toManyCouncilOutstandingProposalsForUse ||
+            wallet?.publicKey?.toBase58() !==
+              depositTokenRecord.account.governingTokenOwner.toBase58()
           }
           onClick={withdrawAllTokens}
         >

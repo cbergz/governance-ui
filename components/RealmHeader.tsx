@@ -1,6 +1,6 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
-import { ChartPieIcon, CogIcon, UsersIcon } from '@heroicons/react/outline'
+import { CogIcon, UsersIcon, ChatAlt2Icon } from '@heroicons/react/outline'
 import { ChevronLeftIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
@@ -20,11 +20,13 @@ const RealmHeader = () => {
     vsrPluginsPks.includes(
       config?.account.communityVoterWeightAddin?.toBase58()
     )
-  const isBackNavVisible = realmInfo?.symbol !== REALM // hide backnav for the default realm
+  const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
 
   // const explorerHost = getRealmExplorerHost(realmInfo)
   // const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
   // const forumUrl = `https://forums.orca.so/`
+
+  const forumUrl = `https://forums.orca.so/`
 
   return (
     <div className="bg-bkg-3 px-4 md:px-6 pb-4 pt-4 md:pt-6 rounded-t-lg">
@@ -78,18 +80,17 @@ const RealmHeader = () => {
               </a>
             </Link>
           )}
-          {isLockTokensMode && symbol === 'MNGO' && (
-            <Link href={fmtUrlWithCluster(`/dao/${symbol}/token-stats`)}>
-              <a className="default-transition flex items-center cursor-pointer text-fgd-2 hover:text-fgd-3 text-sm">
-                <ChartPieIcon className="flex-shrink-0 h-5 mr-1 w-5" />
-                MNGO stats
-              </a>
-            </Link>
-          )}
           <Link href={fmtUrlWithCluster(`/dao/${symbol}/params`)}>
             <a className="default-transition flex items-center cursor-pointer text-fgd-2 hover:text-fgd-3 text-sm">
               <CogIcon className="flex-shrink-0 h-5 mr-1 w-5" />
               Params
+            </a>
+          </Link>
+
+          <Link href={forumUrl}>
+            <a className="default-transition flex items-center cursor-pointer text-fgd-2 hover:text-fgd-3 text-sm">
+              <ChatAlt2Icon className="flex-shrink-0 h-5 mr-1 w-5" />
+              Forum
             </a>
           </Link>
         </div>

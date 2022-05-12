@@ -11,7 +11,7 @@ import useMembersStore from 'stores/useMembersStore'
 
 const RealmHeader = () => {
   const { fmtUrlWithCluster } = useQueryContext()
-  const { realm, realmInfo, realmDisplayName, symbol, config } = useRealm()
+  const { realm, realmInfo, realmDisplayName, symbol } = useRealm()
   const activeMembers = useMembersStore((s) => s.compact.activeMembers)
   const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
 

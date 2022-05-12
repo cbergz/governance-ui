@@ -46,7 +46,7 @@ export interface RealmInfo {
   sharedWalletId?: PublicKey
 }
 
-export function getProgramVersionForRealm(realmInfo: RealmInfo) {
+export function getProgramVersionForRealm() {
   // TODO: as a temp fix V1 is returned by default
   return PROGRAM_VERSION_V2
 }

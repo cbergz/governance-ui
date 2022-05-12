@@ -24,7 +24,7 @@ const RealmHeader = () => {
 
   // const explorerHost = getRealmExplorerHost(realmInfo)
   // const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
-  const forumUrl = `https://forums.orca.so/`
+  // const forumUrl = `https://forums.orca.so/`
 
   return (
     <div className="bg-bkg-3 px-4 md:px-6 pb-4 pt-4 md:pt-6 rounded-t-lg">

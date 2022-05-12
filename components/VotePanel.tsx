@@ -95,7 +95,7 @@ const VotePanel = () => {
   const submitRelinquishVote = async () => {
     const rpcContext = new RpcContext(
       proposal!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection.current,
       connection.endpoint
@@ -111,7 +111,7 @@ const VotePanel = () => {
         await withFinalizeVote(
           instructions,
           realmInfo!.programId,
-          getProgramVersionForRealm(realmInfo!),
+          getProgramVersionForRealm(),
           realm!.pubkey,
           proposal.account.governance,
           proposal.pubkey,

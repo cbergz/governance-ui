@@ -210,7 +210,7 @@ const LockTokensModal = ({
   const handleSaveLock = async () => {
     const rpcContext = new RpcContext(
       realm!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection,
       endpoint
@@ -271,7 +271,7 @@ const LockTokensModal = ({
 
     const rpcContext = new RpcContext(
       realm!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection,
       endpoint

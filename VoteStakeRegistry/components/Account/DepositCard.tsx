@@ -54,7 +54,7 @@ const DepositCard = ({ deposit }: { deposit: DepositWithMintAccount }) => {
     }
     const rpcContext = new RpcContext(
       realm!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection,
       endpoint
@@ -87,7 +87,7 @@ const DepositCard = ({ deposit }: { deposit: DepositWithMintAccount }) => {
   const handleCloseDeposit = async () => {
     const rpcContext = new RpcContext(
       realm!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection,
       endpoint

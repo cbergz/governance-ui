@@ -87,7 +87,7 @@ const WithDrawCommunityTokens = () => {
               await withFinalizeVote(
                 instructions,
                 realmInfo!.programId,
-                getProgramVersionForRealm(realmInfo!),
+                getProgramVersionForRealm(),
                 realm!.pubkey,
                 proposal.account.governance,
                 proposal.pubkey,

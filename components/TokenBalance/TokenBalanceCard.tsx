@@ -214,7 +214,7 @@ const TokenDeposit = ({
     await withDepositGoverningTokens(
       instructions,
       realmInfo!.programId,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       realm!.pubkey,
       depositTokenAccount!.publicKey,
       depositTokenAccount!.account.mint,
@@ -279,7 +279,7 @@ const TokenDeposit = ({
               await withFinalizeVote(
                 instructions,
                 realmInfo!.programId,
-                getProgramVersionForRealm(realmInfo!),
+                getProgramVersionForRealm(),
                 realm!.pubkey,
                 proposal.account.governance,
                 proposal.pubkey,

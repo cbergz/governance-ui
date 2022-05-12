@@ -136,7 +136,7 @@ const NewAccountForm = () => {
 
         const rpcContext = new RpcContext(
           new PublicKey(realm.owner.toString()),
-          getProgramVersionForRealm(realmInfo!),
+          getProgramVersionForRealm(),
           wallet!,
           connection.current,
           connection.endpoint

@@ -46,7 +46,7 @@ export function FlagInstructionErrorButton({
     try {
       const rpcContext = new RpcContext(
         new PublicKey(proposal.owner.toString()),
-        getProgramVersionForRealm(realmInfo!),
+        getProgramVersionForRealm(),
         wallet!,
         connection.current,
         connection.endpoint

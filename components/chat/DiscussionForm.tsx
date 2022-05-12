@@ -41,7 +41,7 @@ const DiscussionForm = () => {
 
     const rpcContext = new RpcContext(
       proposal!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection.current,
       connection.endpoint

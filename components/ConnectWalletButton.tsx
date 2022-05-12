@@ -1,5 +1,5 @@
 import { Menu } from '@headlessui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { CheckCircleIcon, ChevronDownIcon } from '@heroicons/react/solid'
 import styled from '@emotion/styled'
 import useWalletStore from '../stores/useWalletStore'
@@ -7,17 +7,9 @@ import {
   getWalletProviderByUrl,
   WALLET_PROVIDERS,
 } from '../utils/wallet-adapters'
-import {
-  AddressImage,
-  DisplayAddress,
-  useAddressName,
-  useWalletIdentity,
-} from '@cardinal/namespaces-components'
-import { BackspaceIcon } from '@heroicons/react/solid'
+import { AddressImage, DisplayAddress } from '@cardinal/namespaces-components'
 import { UserCircleIcon } from '@heroicons/react/outline'
 import { abbreviateAddress } from '@utils/formatting'
-import TwitterIcon from './TwitterIcon'
-import Switch from './Switch'
 
 const StyledWalletProviderLabel = styled.p`
   font-size: 0.65rem;
@@ -37,19 +29,6 @@ const ConnectWalletButton = (props) => {
     providerUrl,
   ])
 
-  const [useDevnet, setUseDevnet] = useState(false)
-  const handleToggleDevnet = () => {
-    setUseDevnet(!useDevnet)
-    if (useDevnet) {
-      window.location.replace(`${window.location.pathname}`)
-    } else {
-      window.location.replace(`${window.location.href}?cluster=devnet`)
-    }
-  }
-  useEffect(() => {
-    setUseDevnet(connection.cluster === 'devnet')
-  }, [connection.cluster])
-
   const handleConnectDisconnect = async () => {
     try {
       if (connected) {
@@ -61,13 +40,6 @@ const ConnectWalletButton = (props) => {
       console.warn('handleConnectDisconnect', e)
     }
   }
-
-  const { show } = useWalletIdentity()
-
-  const { displayName } = useAddressName(
-    connection.current,
-    current?.publicKey || undefined
-  )
 
   const walletAddressFormatted = current?.publicKey
     ? abbreviateAddress(current?.publicKey)

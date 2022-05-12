@@ -1,6 +1,6 @@
 import {
   getRealms,
-  PROGRAM_VERSION_V1,
+  // PROGRAM_VERSION_V1,
   PROGRAM_VERSION_V2,
   Realm,
 } from '@solana/spl-governance'

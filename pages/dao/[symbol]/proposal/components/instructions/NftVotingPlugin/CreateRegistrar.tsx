@@ -10,17 +10,16 @@ import { validateInstruction } from '@utils/instructionTools'
 import { UiInstruction } from '@utils/uiTypes/proposalCreationTypes'
 
 import useWalletStore from 'stores/useWalletStore'
-
-import useGovernedMultiTypeAccounts from '@hooks/useGovernedMultiTypeAccounts'
 import useRealm from '@hooks/useRealm'
-import { GovernedTokenAccount } from '@utils/tokens'
 import useVotePluginsClientStore from 'stores/useVotePluginsClientStore'
 import { NewProposalContext } from '../../../new'
 import InstructionForm, { InstructionInputType } from '../FormCreator'
 import { getNftRegistrarPDA } from 'NftVotePlugin/sdk/accounts'
+import { AssetAccount } from '@utils/uiTypes/assets'
+import useGovernanceAssets from '@hooks/useGovernanceAssets'
 
 interface CreateNftRegistrarForm {
-  governedAccount: GovernedTokenAccount | undefined
+  governedAccount: AssetAccount | undefined
   maxCollections: number
 }
 
@@ -33,7 +32,7 @@ const CreateNftPluginRegistrar = ({
 }) => {
   const { realm, realmInfo } = useRealm()
   const nftClient = useVotePluginsClientStore((s) => s.state.nftClient)
-  const { governedMultiTypeAccounts } = useGovernedMultiTypeAccounts()
+  const { assetAccounts } = useGovernanceAssets()
   const wallet = useWalletStore((s) => s.current)
   const shouldBeGoverned = index !== 0 && governance
   const [form, setForm] = useState<CreateNftRegistrarForm>()
@@ -53,21 +52,19 @@ const CreateNftPluginRegistrar = ({
         nftClient!.program.programId
       )
 
-      const instruction = nftClient!.program.instruction.createRegistrar(
-        form!.maxCollections,
-        {
-          accounts: {
-            registrar,
-            realm: realm!.pubkey,
-            governanceProgramId: realmInfo!.programId,
-            realmAuthority: realm!.account.authority!,
-            governingTokenMint: realm!.account.communityMint!,
-            payer: wallet.publicKey!,
-            systemProgram: SYSTEM_PROGRAM_ID,
-          },
-        }
-      )
-      serializedInstruction = serializeInstructionToBase64(instruction)
+      const createRegistrarIx = await nftClient!.program.methods
+        .createRegistrar(form!.maxCollections)
+        .accounts({
+          registrar,
+          realm: realm!.pubkey,
+          governanceProgramId: realmInfo!.programId,
+          realmAuthority: realm!.account.authority!,
+          governingTokenMint: realm!.account.communityMint!,
+          payer: wallet.publicKey!,
+          systemProgram: SYSTEM_PROGRAM_ID,
+        })
+        .instruction()
+      serializedInstruction = serializeInstructionToBase64(createRegistrarIx)
     }
     const obj: UiInstruction = {
       serializedInstruction: serializedInstruction,
@@ -96,7 +93,7 @@ const CreateNftPluginRegistrar = ({
       type: InstructionInputType.GOVERNED_ACCOUNT,
       shouldBeGoverned: shouldBeGoverned,
       governance: governance,
-      options: governedMultiTypeAccounts.filter(
+      options: assetAccounts.filter(
         (x) =>
           x.governance.pubkey.toBase58() ===
           realm?.account.authority?.toBase58()

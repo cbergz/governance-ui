@@ -2,6 +2,8 @@ import useQueryContext from '@hooks/useQueryContext'
 import Link from 'next/link'
 
 import ConnectWalletButton from './ConnectWalletButton'
+import NotificationsSwitch from './NotificationsSwitch'
+import ThemeSwitch from './ThemeSwitch'
 
 const NavBar = () => {
   const { fmtUrlWithCluster } = useQueryContext()
@@ -15,7 +17,11 @@ const NavBar = () => {
             {/* <h1 className="text-lg">Sierra</h1> */}
           </div>
         </Link>
-        <ConnectWalletButton />
+        <div className="flex items-center space-x-4">
+          <ThemeSwitch />
+          <NotificationsSwitch />
+          <ConnectWalletButton />
+        </div>
       </div>
     </div>
   )

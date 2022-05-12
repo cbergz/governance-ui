@@ -1,9 +1,17 @@
 import dynamic from 'next/dynamic'
+<<<<<<< HEAD
+=======
+import useRealm from '@hooks/useRealm'
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 import PreviousRouteBtn from '@components/PreviousRouteBtn'
 import { LinkIcon } from '@heroicons/react/outline'
 import MyProposalsBtn from 'pages/dao/[symbol]/proposal/components/MyProposalsBtn'
 import useWalletStore from 'stores/useWalletStore'
 
+<<<<<<< HEAD
+=======
+const NotificationsCard = dynamic(() => import('@components/NotificationsCard'))
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 const DelegateCard = dynamic(() => import('@components/DelegateCard'))
 
 const AccountInner = ({ withHeader = true }: { withHeader?: boolean }) => {
@@ -35,11 +43,31 @@ const AccountInner = ({ withHeader = true }: { withHeader?: boolean }) => {
   )
 }
 
+<<<<<<< HEAD
+=======
+const NotificationsPlugin = () => {
+  const { realmInfo } = useRealm()
+  if (realmInfo?.enableNotifi) {
+    return (
+      <div className="md:w-1/2 col-span-12">
+        <NotificationsCard />
+      </div>
+    )
+  }
+
+  return null
+}
+
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 const Account = ({ withHeader = true }: { withHeader?: boolean }) => {
   if (withHeader) {
     return (
       <div className="grid grid-cols-12 gap-4">
         <AccountInner withHeader={withHeader} />
+<<<<<<< HEAD
+=======
+        <NotificationsPlugin />
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
         <div className="md:w-1/2 col-span-12">
           <DelegateCard />
         </div>
@@ -52,6 +80,10 @@ const Account = ({ withHeader = true }: { withHeader?: boolean }) => {
         <div className="md:w-1/2 col-span-12">
           <DelegateCard />
         </div>
+<<<<<<< HEAD
+=======
+        <NotificationsPlugin />
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
       </>
     )
   }

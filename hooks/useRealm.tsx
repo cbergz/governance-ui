@@ -3,7 +3,9 @@ import { ProgramAccount, TokenOwnerRecord } from '@solana/spl-governance'
 import { isPublicKey } from '@tools/core/pubkey'
 import { useRouter } from 'next/router'
 import useNftPluginStore from 'NftVotePlugin/store/nftPluginStore'
-import { useMemo, useState } from 'react'
+import { PythBalance } from 'pyth-staking-api'
+import { useEffect, useMemo, useState } from 'react'
+import useVotePluginsClientStore from 'stores/useVotePluginsClientStore'
 import useDepositStore from 'VoteStakeRegistry/stores/useDepositStore'
 import {
   createUnchartedRealmInfo,
@@ -11,14 +13,24 @@ import {
   RealmInfo,
 } from '../models/registry/api'
 import {
+  PythVoterWeight,
   VoteNftWeight,
   VoteRegistryVoterWeight,
   VoterWeight,
 } from '../models/voteWeights'
+import useMembersStore from 'stores/useMembersStore'
 
 import useWalletStore from '../stores/useWalletStore'
+<<<<<<< HEAD
 import { nftPluginsPks, vsrPluginsPks } from './useVotingPlugins'
 import useMembersStore from 'stores/useMembersStore'
+=======
+import {
+  nftPluginsPks,
+  vsrPluginsPks,
+  pythPluginsPks,
+} from './useVotingPlugins'
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 
 export default function useRealm() {
   const router = useRouter()
@@ -32,8 +44,6 @@ export default function useRealm() {
     mint,
     councilMint,
     governances,
-    tokenMints,
-    tokenAccounts: realmTokenAccounts,
     proposals,
     tokenRecords,
     councilTokenOwnerRecords,
@@ -42,6 +52,25 @@ export default function useRealm() {
   } = useWalletStore((s) => s.selectedRealm)
   const votingPower = useDepositStore((s) => s.state.votingPower)
   const nftVotingPower = useNftPluginStore((s) => s.state.votingPower)
+
+  const pythClient = useVotePluginsClientStore((s) => s.state.pythClient)
+  const [pythVoterWeight, setPythVoterWeight] = useState<PythBalance>()
+
+  useEffect(() => {
+    const getPythVoterWeight = async () => {
+      if (connected && wallet?.publicKey && pythClient) {
+        const sa = await pythClient.stakeConnection.getMainAccount(
+          wallet.publicKey
+        )
+        const vw = sa?.getVoterWeight(
+          await pythClient.stakeConnection.getTime()
+        )
+        setPythVoterWeight(vw)
+      }
+    }
+    getPythVoterWeight()
+  }, [connected])
+
   const [realmInfo, setRealmInfo] = useState<RealmInfo | undefined>(undefined)
   const delegates = useMembersStore((s) => s.compact.delegates)
   const selectedCouncilDelegate = useWalletStore(
@@ -50,10 +79,16 @@ export default function useRealm() {
   const selectedCommunityDelegate = useWalletStore(
     (s) => s.selectedCommunityDelegate
   )
+<<<<<<< HEAD
+=======
+
+>>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
   useMemo(async () => {
     let realmInfo = isPublicKey(symbol as string)
       ? realm
-        ? createUnchartedRealmInfo(realm)
+        ? // Realm program data needs to contain config options to enable/disable things such as notifications
+          // Currently defaulting to false here for now
+          createUnchartedRealmInfo(realm)
         : undefined
       : getCertifiedRealmInfo(symbol as string, connection)
 
@@ -171,15 +206,20 @@ export default function useRealm() {
       realmCfgMaxOutstandingProposalCount
 
   const currentPluginPk = config?.account?.communityVoterWeightAddin
-
+  //based on realm config it will provide proper tokenBalanceCardComponent
+  const isLockTokensMode =
+    currentPluginPk && vsrPluginsPks.includes(currentPluginPk?.toBase58())
+  const isNftMode =
+    currentPluginPk && nftPluginsPks.includes(currentPluginPk?.toBase58())
+  const pythVotingPower = pythVoterWeight?.toBN() || new BN(0)
   const ownVoterWeight = getVoterWeight(
     currentPluginPk,
     ownTokenRecord,
     votingPower,
     nftVotingPower,
+    pythVotingPower,
     ownCouncilTokenRecord
   )
-
   return {
     realm,
     realmInfo,
@@ -187,8 +227,6 @@ export default function useRealm() {
     mint,
     councilMint,
     governances,
-    realmTokenAccounts,
-    tokenMints,
     proposals,
     tokenRecords,
     realmTokenAccount,
@@ -204,6 +242,9 @@ export default function useRealm() {
     ownDelegateTokenRecords,
     ownDelegateCouncilTokenRecords,
     config,
+    currentPluginPk,
+    isLockTokensMode,
+    isNftMode,
   }
 }
 
@@ -212,6 +253,7 @@ const getVoterWeight = (
   ownTokenRecord: ProgramAccount<TokenOwnerRecord> | undefined,
   votingPower: BN,
   nftVotingPower: BN,
+  pythVotingPower: BN,
   ownCouncilTokenRecord: ProgramAccount<TokenOwnerRecord> | undefined
 ) => {
   if (currentPluginPk) {
@@ -224,6 +266,9 @@ const getVoterWeight = (
         ownCouncilTokenRecord,
         nftVotingPower
       )
+    }
+    if (pythPluginsPks.includes(currentPluginPk.toBase58())) {
+      return new PythVoterWeight(ownTokenRecord, pythVotingPower)
     }
   }
   return new VoterWeight(ownTokenRecord, ownCouncilTokenRecord)

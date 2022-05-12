@@ -29,7 +29,6 @@ export function FlagInstructionErrorButton({
   playState: PlayState
   proposalAuthority: ProgramAccount<TokenOwnerRecord> | undefined
 }) {
-  const { realmInfo } = useRealm()
   const wallet = useWalletStore((s) => s.current)
   const connection = useWalletStore((s) => s.connection)
 

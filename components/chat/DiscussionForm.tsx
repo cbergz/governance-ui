@@ -16,7 +16,6 @@ const DiscussionForm = () => {
   const connected = useWalletStore((s) => s.connected)
   const {
     ownVoterWeight,
-    realmInfo,
     realm,
     ownTokenRecord,
     ownCouncilTokenRecord,

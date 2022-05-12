@@ -64,7 +64,6 @@ const MangoDepositComponent = ({
   const { fmtUrlWithCluster } = useQueryContext()
   const {
     proposals,
-    realmInfo,
     realm,
     ownVoterWeight,
     mint,

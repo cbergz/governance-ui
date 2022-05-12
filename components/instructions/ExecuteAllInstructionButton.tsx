@@ -35,7 +35,6 @@ export function ExecuteAllInstructionButton({
   playing: PlayState
   setPlaying: React.Dispatch<React.SetStateAction<PlayState>>
 }) {
-  const { realmInfo } = useRealm()
   const wallet = useWalletStore((s) => s.current)
   const connection = useWalletStore((s) => s.connection)
   const refetchProposals = useWalletStore((s) => s.actions.refetchProposals)

@@ -8,7 +8,6 @@ import {
 } from '@solana/spl-governance'
 import { ProgramAccount } from '@solana/spl-governance'
 import { RpcContext } from '@solana/spl-governance'
-import useRealm from '@hooks/useRealm'
 import useWalletStore from 'stores/useWalletStore'
 import { PlayState } from './ExecuteInstructionButton'
 import { ExclamationCircleIcon } from '@heroicons/react/solid'

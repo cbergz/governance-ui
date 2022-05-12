@@ -5,7 +5,6 @@ import { ChevronDownIcon } from '@heroicons/react/solid'
 import { useEffect, useRef, useState } from 'react'
 import useWalletStore from 'stores/useWalletStore'
 import { RpcContext } from '@solana/spl-governance'
-import useRealm from '@hooks/useRealm'
 import { getProgramVersionForRealm } from '@models/registry/api'
 import {
   ExecuteAllInstructionButton,

@@ -37,6 +37,10 @@ import useVotePluginsClientStore from 'stores/useVotePluginsClientStore'
 import Link from 'next/link'
 import useNftPluginStore from 'NftVotePlugin/store/nftPluginStore'
 import { vsrPluginsPks } from '@hooks/useVotingPlugins'
+import {
+  LOCALNET_REALM_ID as PYTH_LOCALNET_REALM_ID,
+  PythBalance,
+} from 'pyth-staking-api'
 import DelegateTokenBalanceCard from '@components/TokenBalance/DelegateTokenBalanceCard'
 
 const TokenBalanceCard = ({ proposal }: { proposal?: Option<Proposal> }) => {
@@ -159,6 +163,7 @@ const TokenDeposit = ({
     realmTokenAccount,
     ownTokenRecord,
     ownCouncilTokenRecord,
+    ownVoterWeight,
     councilTokenAccount,
     proposals,
     governances,
@@ -189,7 +194,7 @@ const TokenDeposit = ({
   const tokenName = getMintMetadata(depositMint)?.name ?? realm?.account.name
 
   const depositTokenName = `${tokenName} ${
-    tokenType === GoverningTokenType.Community ? '' : 'Admin'
+    tokenType === GoverningTokenType.Community ? '' : 'Council'
   }`
 
   const depositTokens = async function (amount: BN) {
@@ -224,7 +229,7 @@ const TokenDeposit = ({
 
     await sendTransaction({
       connection,
-      wallet,
+      wallet: wallet!,
       transaction,
       signers,
       sendingMessage: 'Depositing tokens',
@@ -247,8 +252,6 @@ const TokenDeposit = ({
         realmInfo!.programId,
         depositTokenRecord!.account!.governingTokenOwner
       )
-
-      console.log('Vote Records', voteRecords)
 
       for (const voteRecord of Object.values(voteRecords)) {
         let proposal = proposals[voteRecord.account.proposal.toBase58()]
@@ -290,7 +293,7 @@ const TokenDeposit = ({
         // Note: We might hit single transaction limits here (accounts and size) if user has too many unrelinquished votes
         // It's not going to be an issue for now due to the limited number of proposals so I'm leaving it for now
         // As a temp. work around I'm leaving the 'Release Tokens' button on finalized Proposal to make it possible to release the tokens from one Proposal at a time
-        withRelinquishVote(
+        await withRelinquishVote(
           instructions,
           realmInfo!.programId,
           proposal.account.governance,
@@ -326,7 +329,7 @@ const TokenDeposit = ({
         const transaction = new Transaction().add(...chunk)
         await sendTransaction({
           connection,
-          wallet,
+          wallet: wallet!,
           transaction,
           sendingMessage:
             index == ixChunks.length - 1
@@ -369,13 +372,18 @@ const TokenDeposit = ({
     ? 'You have to many outstanding proposals to withdraw.'
     : ''
 
-  const availableTokens =
-    depositTokenRecord && mint
-      ? fmtMintAmount(
-          mint,
-          depositTokenRecord.account.governingTokenDepositAmount
-        )
-      : '0'
+  //Todo: move to own components with refactor to dao folder structure
+  const isPyth =
+    realmInfo?.realmId.toBase58() === PYTH_LOCALNET_REALM_ID.toBase58()
+
+  const availableTokens = isPyth
+    ? new PythBalance(ownVoterWeight.votingPower!).toString()
+    : depositTokenRecord && mint
+    ? fmtMintAmount(
+        mint,
+        depositTokenRecord.account.governingTokenDepositAmount
+      )
+    : '0'
 
   const canShowAvailableTokensMessage =
     !hasTokensDeposited && hasTokensInWallet && connected
@@ -397,40 +405,44 @@ const TokenDeposit = ({
         </div>
       </div>
 
-      <p
-        className={`mt-2 opacity-70 mb-4 ml-1 text-xs ${
-          canShowAvailableTokensMessage ? 'block' : 'hidden'
-        }`}
-      >
-        You have {tokensToShow} tokens available to {canExecuteAction}.
-      </p>
+      {!isPyth && (
+        <>
+          <p
+            className={`mt-2 opacity-70 mb-4 ml-1 text-xs ${
+              canShowAvailableTokensMessage ? 'block' : 'hidden'
+            }`}
+          >
+            You have {tokensToShow} tokens available to {canExecuteAction}.
+          </p>
 
-      <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mt-6">
-        <Button
-          tooltipMessage={depositTooltipContent}
-          className="sm:w-1/2"
-          disabled={!connected || !hasTokensInWallet}
-          onClick={depositAllTokens}
-        >
-          Deposit
-        </Button>
+          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mt-6">
+            <Button
+              tooltipMessage={depositTooltipContent}
+              className="sm:w-1/2"
+              disabled={!connected || !hasTokensInWallet}
+              onClick={depositAllTokens}
+            >
+              Deposit
+            </Button>
 
-        <Button
-          tooltipMessage={withdrawTooltipContent}
-          className="sm:w-1/2"
-          disabled={
-            !connected ||
-            !hasTokensDeposited ||
-            (!councilVote && toManyCommunityOutstandingProposalsForUser) ||
-            toManyCouncilOutstandingProposalsForUse ||
-            wallet?.publicKey?.toBase58() !==
-              depositTokenRecord.account.governingTokenOwner.toBase58()
-          }
-          onClick={withdrawAllTokens}
-        >
-          Withdraw
-        </Button>
-      </div>
+            <Button
+              tooltipMessage={withdrawTooltipContent}
+              className="sm:w-1/2"
+              disabled={
+                !connected ||
+                !hasTokensDeposited ||
+                (!councilVote && toManyCommunityOutstandingProposalsForUser) ||
+                toManyCouncilOutstandingProposalsForUse ||
+                wallet?.publicKey?.toBase58() !==
+                  depositTokenRecord.account.governingTokenOwner.toBase58()
+              }
+              onClick={withdrawAllTokens}
+            >
+              Withdraw
+            </Button>
+          </div>
+        </>
+      )}
       {config?.account.communityVoterWeightAddin &&
         vsrPluginsPks.includes(
           config?.account.communityVoterWeightAddin.toBase58()

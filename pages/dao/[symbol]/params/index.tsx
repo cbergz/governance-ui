@@ -225,119 +225,6 @@ const Params = () => {
           )}
         </div>
         {!loadGovernedAccounts ? (
-<<<<<<< HEAD
-          <div className="border border-fgd-4 grid grid-cols-12 gap-4 lg:gap-6 p-6 rounded-md">
-            <div className="col-span-12 lg:hidden">
-              <Select
-                className="break-all"
-                label={'Governances'}
-                onChange={(g) =>
-                  setActiveGovernance(
-                    governedAccounts.find((acc) => acc.pubkey.toBase58() === g)
-                  )
-                }
-                placeholder="Please select..."
-                value={activeGovernance?.pubkey.toBase58()}
-              >
-                {governedAccounts.map((x) => {
-                  return (
-                    <Select.Option
-                      key={x.pubkey.toBase58()}
-                      value={x.pubkey.toBase58()}
-                    >
-                      {x.pubkey.toBase58()}
-                    </Select.Option>
-                  )
-                })}
-              </Select>
-            </div>
-            <div className="hidden lg:block lg:col-span-4">
-              <h3 className="mb-4">{governedAccounts.length} Governances</h3>
-              <GovernedAccountsTabs
-                activeTab={activeGovernance}
-                onChange={(g) => setActiveGovernance(g)}
-                tabs={governedAccounts}
-              />
-            </div>
-            {activeGovernance ? (
-              <div className="col-span-12 lg:col-span-8">
-                <h3 className="break-all mb-4">
-                  {activeGovernance.pubkey.toBase58()}
-                </h3>
-                {activeGovernance.accounts.length > 0 ? (
-                  <Tabs
-                    activeTab={activeTab}
-                    onChange={(t) => setActiveTab(t)}
-                    tabs={['Params', 'Accounts']}
-                  />
-                ) : null}
-                {activeTab === 'Params' ? (
-                  <>
-                    <DisplayField
-                      label="owner"
-                      padding
-                      val={activeGovernance.owner.toBase58()}
-                    />
-                    {realmAccount?.authority?.toBase58() ===
-                      activeGovernance.pubkey.toBase58() && (
-                      <DisplayField
-                        label="Realm Authority"
-                        padding
-                        val={'Yes'}
-                      />
-                    )}
-                    <DisplayField
-                      label="Proposals Count"
-                      padding
-                      val={activeGovernance.account.proposalCount}
-                    />
-                    <DisplayField
-                      label="Voting Proposals Count"
-                      padding
-                      val={activeGovernance.account.votingProposalCount}
-                    />
-                    <DisplayField
-                      label="Max Voting Time"
-                      padding
-                      val={getFormattedStringFromDays(
-                        activeGovernance.account.config.maxVotingTime /
-                          SECS_PER_DAY
-                      )}
-                    />
-                    {communityMint && (
-                      <DisplayField
-                        label="Min community tokens to create a proposal"
-                        padding
-                        val={fmtMintAmount(
-                          mint,
-                          activeGovernance.account.config
-                            .minCommunityTokensToCreateProposal
-                        )}
-                      />
-                    )}
-                    {councilMint && (
-                      <DisplayField
-                        label="Min admin tokens to create a proposal"
-                        padding
-                        val={fmtMintAmount(
-                          councilMint,
-                          activeGovernance.account.config
-                            .minCouncilTokensToCreateProposal
-                        )}
-                      />
-                    )}
-                    <DisplayField
-                      label="Min Instruction Holdup Time"
-                      padding
-                      val={
-                        activeGovernance.account.config.minInstructionHoldUpTime
-                      }
-                    />
-                    <DisplayField
-                      label="Proposal Cool-off Time"
-                      padding
-                      val={activeGovernance.account.config.proposalCoolOffTime}
-=======
           <>
             <div className="border border-fgd-4 grid grid-cols-12 gap-4 lg:gap-6 p-6 rounded-md mb-6">
               <div className="col-span-12 lg:hidden">
@@ -388,7 +275,6 @@ const Params = () => {
                       activeTab={activeTab}
                       onChange={(t) => setActiveTab(t)}
                       tabs={['Params', 'Accounts', 'Statistics']}
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
                     />
                   ) : null}
                   {activeTab === 'Params' && (

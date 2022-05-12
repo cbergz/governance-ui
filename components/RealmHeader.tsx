@@ -1,23 +1,5 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
-<<<<<<< HEAD
-import { CogIcon, UsersIcon, ChatAlt2Icon } from '@heroicons/react/outline'
-import { ChevronLeftIcon /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
-import Link from 'next/link'
-import useQueryContext from 'hooks/useQueryContext'
-// import { ExternalLinkIcon } from '@heroicons/react/outline'
-// import { getRealmExplorerHost } from 'tools/routing'
-// import Tooltip from './Tooltip'
-import useMembersStore from 'stores/useMembersStore'
-
-const RealmHeader = () => {
-  const { fmtUrlWithCluster } = useQueryContext()
-  const { realm, realmInfo, realmDisplayName, symbol } = useRealm()
-  //const { REALM } = process.env
-  const activeMembers = useMembersStore((s) => s.compact.activeMembers)
-
-  const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
-=======
 import { ChartPieIcon, CogIcon, UsersIcon } from '@heroicons/react/outline'
 import { ChevronLeftIcon, BadgeCheckIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
@@ -39,7 +21,6 @@ const RealmHeader = () => {
       config?.account.communityVoterWeightAddin?.toBase58()
     )
   const isBackNavVisible = realmInfo?.symbol !== REALM // hide backnav for the default realm
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 
   // const explorerHost = getRealmExplorerHost(realmInfo)
   // const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
@@ -109,13 +90,6 @@ const RealmHeader = () => {
             <a className="default-transition flex items-center cursor-pointer text-fgd-2 hover:text-fgd-3 text-sm">
               <CogIcon className="flex-shrink-0 h-5 mr-1 w-5" />
               Params
-            </a>
-          </Link>
-
-          <Link href={forumUrl}>
-            <a className="default-transition flex items-center cursor-pointer text-fgd-2 hover:text-fgd-3 text-sm">
-              <ChatAlt2Icon className="flex-shrink-0 h-5 mr-1 w-5" />
-              Forum
             </a>
           </Link>
         </div>

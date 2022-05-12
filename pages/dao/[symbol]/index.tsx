@@ -20,11 +20,6 @@ import Tabs from '@components/Tabs'
 import AboutRealm from '@components/AboutRealm'
 import Input from '@components/inputs/Input'
 import { SearchIcon } from '@heroicons/react/outline'
-<<<<<<< HEAD
-// const AccountsCompactWrapper = dynamic(
-//   () => import('@components/TreasuryAccount/AccountsCompactWrapper')
-// )
-=======
 import Switch from '@components/Switch'
 import ProposalSelectCard from '@components/ProposalSelectCard'
 import Checkbox from '@components/inputs/Checkbox'
@@ -38,7 +33,6 @@ import { LOCALNET_REALM_ID as PYTH_LOCALNET_REALM_ID } from 'pyth-staking-api'
 const AccountsCompactWrapper = dynamic(
   () => import('@components/TreasuryAccount/AccountsCompactWrapper')
 )
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 const AssetsCompactWrapper = dynamic(
   () => import('@components/AssetsList/AssetsCompactWrapper')
 )
@@ -492,13 +486,8 @@ const REALM = () => {
             </div>
             <div className="col-span-12 md:col-span-5 lg:col-span-4 space-y-4">
               <TokenBalanceCardWrapper />
-<<<<<<< HEAD
-              <NFTSCompactWrapper />
-              {/* <AccountsCompactWrapper /> */}
-=======
               {!isPyth && <NFTSCompactWrapper />}
               <AccountsCompactWrapper />
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
               <AssetsCompactWrapper />
             </div>
           </>

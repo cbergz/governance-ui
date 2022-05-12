@@ -21,16 +21,11 @@ import {
 import useMembersStore from 'stores/useMembersStore'
 
 import useWalletStore from '../stores/useWalletStore'
-<<<<<<< HEAD
-import { nftPluginsPks, vsrPluginsPks } from './useVotingPlugins'
-import useMembersStore from 'stores/useMembersStore'
-=======
 import {
   nftPluginsPks,
   vsrPluginsPks,
   pythPluginsPks,
 } from './useVotingPlugins'
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
 
 export default function useRealm() {
   const router = useRouter()
@@ -79,10 +74,6 @@ export default function useRealm() {
   const selectedCommunityDelegate = useWalletStore(
     (s) => s.selectedCommunityDelegate
   )
-<<<<<<< HEAD
-=======
-
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
   useMemo(async () => {
     let realmInfo = isPublicKey(symbol as string)
       ? realm

@@ -1,7 +1,5 @@
 [
   {
-<<<<<<< HEAD
-=======
     "symbol": "Ukraine",
     "displayName": "Ukraine.SOL",
     "programId": "gUAedF544JeE6NYbQakQvribHykUNgaPJqcgf3UQVnY",
@@ -51,15 +49,10 @@
     "ogImage": "https://trade.mango.markets/assets/icons/logo.svg"
   },
   {
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
     "symbol": "ORCA",
     "displayName": "Orca DAO",
     "programId": "J9uWvULFL47gtCPvgR3oN7W357iehn5WF2Vn9MJvcSxz",
     "realmId": "66Du7mXgS2KMQBUk6m9h3TszMjqZqdWhsG3Duuf69VNW",
-<<<<<<< HEAD
-    "website": "https://orca.so",
-    "twitter": "@orca_so"
-=======
     "website": "https://www.orca.so/",
     "twitter": "@orca_so",
     "ogImage": "https://learn.orca.so/static/media/logomark.1ef55f8f.svg"
@@ -729,6 +722,5 @@
     "ogImage": "/realms/SOLI/soli_logo.png",
     "website": "https://tokens.amun.com/token/SOLI",
     "twitter": "@Amun"
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
   }
 ]

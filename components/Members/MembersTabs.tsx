@@ -40,53 +40,6 @@ const MembersTabs: FunctionComponent<MembersTabsProps> = ({
         }}
       />
       {tabs.map((x) => {
-<<<<<<< HEAD
-        const { walletAddress, councilVotes, communityVotes, votesCasted } = x
-        const communityAmount =
-          communityVotes && !communityVotes.isZero()
-            ? fmtMintAmount(mint, communityVotes)
-            : null
-        const councilAmount = councilVotes /*&& !councilVotes.isZero()*/
-          ? fmtMintAmount(councilMint, councilVotes)
-          : null
-        return (
-          <button
-            key={walletAddress}
-            onClick={() => onChange(x)}
-            className={`cursor-pointer default-transition flex items-center h-24 px-4 relative w-full hover:bg-bkg-3 hover:rounded-md ${
-              activeTab?.walletAddress === walletAddress
-                ? `bg-bkg-3 rounded-md rounded-l-none text-primary-light`
-                : `text-fgd-2 hover:text-primary-light`
-            }
-            `}
-          >
-            <div className="flex items-center text-left">
-              <div className="bg-bkg-4 flex flex-shrink-0 items-center justify-center h-8 rounded-full w-8 mr-2">
-                {renderAddressImage(walletAddress)}
-              </div>
-              <div>
-                <h3 className="mb-1 text-sm flex">
-                  {renderAddressName(walletAddress)}
-                </h3>
-                <p className="mb-0 text-fgd-1 text-xs">
-                  Votes Cast: {votesCasted}
-                </p>
-                <span className="text-fgd-3 text-xs">
-                  {(communityAmount || !councilAmount) && (
-                    <span className="flex items-center">
-                      {tokenName} Votes {communityAmount || 0}
-                    </span>
-                  )}
-                  {councilAmount && (
-                    <span className="flex items-center">
-                      Admin Votes {councilAmount}{' '}
-                    </span>
-                  )}
-                </span>
-              </div>
-            </div>
-          </button>
-=======
         return (
           (mint || councilMint) && (
             <MemberItems
@@ -99,7 +52,6 @@ const MembersTabs: FunctionComponent<MembersTabsProps> = ({
               onChange={onChange}
             ></MemberItems>
           )
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
         )
       })}
     </div>

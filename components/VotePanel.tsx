@@ -50,10 +50,7 @@ const VotePanel = () => {
   const maxVoterWeight =
     useNftPluginStore((s) => s.state.maxVoteRecord)?.pubkey || undefined
 
-<<<<<<< HEAD
-=======
   // Handle state based on if a delegated wallet has already voted or not
->>>>>>> dd80e6efc1aff829acb7528e9dc8e317b3c579f3
   const ownVoteRecord =
     tokenType === GoverningTokenType.Community && ownTokenRecord
       ? voteRecordsByVoter[

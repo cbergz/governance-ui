@@ -24,7 +24,6 @@ import { usePrevious } from '@hooks/usePrevious'
 import useTreasuryAccountStore from 'stores/useTreasuryAccountStore'
 import useMembers from '@components/Members/useMembers'
 import dynamic from 'next/dynamic'
-import { url } from 'inspector'
 const Notifications = dynamic(() => import('../components/Notification'), {
   ssr: false,
 })

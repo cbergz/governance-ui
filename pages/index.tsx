@@ -4,7 +4,7 @@ const Index = () => {
   const router = useRouter()
 
   useEffect(() => {
-    const mainUrl = ''
+    const mainUrl = '/dao/ORCA'
     router.replace(mainUrl)
   }, [])
 

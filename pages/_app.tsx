@@ -24,6 +24,7 @@ import { usePrevious } from '@hooks/usePrevious'
 import useTreasuryAccountStore from 'stores/useTreasuryAccountStore'
 import useMembers from '@components/Members/useMembers'
 import dynamic from 'next/dynamic'
+import { url } from 'inspector'
 const Notifications = dynamic(() => import('../components/Notification'), {
   ssr: false,
 })
@@ -128,7 +129,14 @@ function App({ Component, pageProps }) {
   }, [JSON.stringify(possibleNftsAccounts), realm?.pubkey.toBase58()])
 
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      style={{
+        backgroundImage: `url('/background_orca.svg')`,
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <ErrorBoundary>
         <ThemeProvider defaultTheme="Dark">
           <WalletIdentityProvider appName={'Realms'}>

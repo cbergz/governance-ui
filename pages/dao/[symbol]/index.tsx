@@ -305,8 +305,8 @@ const REALM = () => {
     [realm, connected]
   )
   //Todo: move to own components with refactor to dao folder structure
-  const isPyth =
-    realmInfo?.realmId.toBase58() === PYTH_LOCALNET_REALM_ID.toBase58()
+  // const isPyth =
+  //   realmInfo?.realmId.toBase58() === PYTH_LOCALNET_REALM_ID.toBase58()
 
   return (
     <>

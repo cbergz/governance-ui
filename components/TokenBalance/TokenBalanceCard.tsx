@@ -194,7 +194,7 @@ const TokenDeposit = ({
   const tokenName = getMintMetadata(depositMint)?.name ?? realm?.account.name
 
   const depositTokenName = `${tokenName} ${
-    tokenType === GoverningTokenType.Community ? '' : 'Council'
+    tokenType === GoverningTokenType.Community ? '' : 'Admin'
   }`
 
   const depositTokens = async function (amount: BN) {

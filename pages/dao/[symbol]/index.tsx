@@ -30,15 +30,15 @@ import { notify } from '@utils/notifications'
 import { sendSignedTransaction } from '@utils/send'
 import { LOCALNET_REALM_ID as PYTH_LOCALNET_REALM_ID } from 'pyth-staking-api'
 
-const AccountsCompactWrapper = dynamic(
-  () => import('@components/TreasuryAccount/AccountsCompactWrapper')
-)
-const AssetsCompactWrapper = dynamic(
-  () => import('@components/AssetsList/AssetsCompactWrapper')
-)
-const NFTSCompactWrapper = dynamic(
-  () => import('@components/NFTS/NFTSCompactWrapper')
-)
+// const AccountsCompactWrapper = dynamic(
+//   () => import('@components/TreasuryAccount/AccountsCompactWrapper')
+// )
+// const AssetsCompactWrapper = dynamic(
+//   () => import('@components/AssetsList/AssetsCompactWrapper')
+// )
+// const NFTSCompactWrapper = dynamic(
+//   () => import('@components/NFTS/NFTSCompactWrapper')
+// )
 const ProposalCard = dynamic(() => import('components/ProposalCard'))
 const RealmHeader = dynamic(() => import('components/RealmHeader'))
 const DepositLabel = dynamic(
@@ -486,9 +486,9 @@ const REALM = () => {
             </div>
             <div className="col-span-12 md:col-span-5 lg:col-span-4 space-y-4">
               <TokenBalanceCardWrapper />
-              {!isPyth && <NFTSCompactWrapper />}
-              <AccountsCompactWrapper />
-              <AssetsCompactWrapper />
+              {/* {!isPyth && <NFTSCompactWrapper />} */}
+              {/* <AccountsCompactWrapper /> */}
+              {/* <AssetsCompactWrapper /> */}
             </div>
           </>
         ) : (

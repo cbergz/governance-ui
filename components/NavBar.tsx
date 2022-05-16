@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import ConnectWalletButton from './ConnectWalletButton'
 import NotificationsSwitch from './NotificationsSwitch'
-import ThemeSwitch from './ThemeSwitch'
+// import ThemeSwitch from './ThemeSwitch'
 
 const NavBar = () => {
   const { fmtUrlWithCluster } = useQueryContext()
@@ -18,7 +18,7 @@ const NavBar = () => {
           </div>
         </Link>
         <div className="flex items-center space-x-4">
-          <ThemeSwitch />
+          {/* <ThemeSwitch /> */}
           <NotificationsSwitch />
           <ConnectWalletButton />
         </div>

@@ -23,6 +23,7 @@
   --fgd-2: theme('colors.dark-theme.fgd-2');
   --fgd-3: theme('colors.dark-theme.fgd-3');
   --fgd-4: theme('colors.dark-theme.fgd-4');
+  --background-image: url('/background_orca.svg');
 }
 
 [data-theme='Light'] {
@@ -176,3 +177,4 @@ body::-webkit-scrollbar-corner {
 ::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
+

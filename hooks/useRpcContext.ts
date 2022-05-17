@@ -5,13 +5,13 @@ import useWalletStore from 'stores/useWalletStore'
 import useRealm from './useRealm'
 
 export default function useRpcContext() {
-  const { realmInfo, realm } = useRealm()
+  const { realm } = useRealm()
   const connection = useWalletStore((s) => s.connection)
   const wallet = useWalletStore((s) => s.current)
   const getRpcContext = () =>
     new RpcContext(
       new PublicKey(realm!.owner.toString()),
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection.current,
       connection.endpoint

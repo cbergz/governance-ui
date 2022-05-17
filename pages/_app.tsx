@@ -1,7 +1,7 @@
-import { ThemeProvider } from 'next-themes'
+// import { ThemeProvider } from 'next-themes'
+import '@dialectlabs/react-ui/index.css'
 import '../styles/index.css'
 import useWallet from '../hooks/useWallet'
-import Notifications from '../components/Notification'
 import NavBar from '../components/NavBar'
 import PageBodyContainer from '../components/PageBodyContainer'
 import useHydrateStore from '../hooks/useHydrateStore'
@@ -22,19 +22,26 @@ import tokenService from '@utils/services/token'
 import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import { usePrevious } from '@hooks/usePrevious'
 import useTreasuryAccountStore from 'stores/useTreasuryAccountStore'
-
+import useMembers from '@components/Members/useMembers'
+import dynamic from 'next/dynamic'
+const Notifications = dynamic(() => import('../components/Notification'), {
+  ssr: false,
+})
 function App({ Component, pageProps }) {
   useHydrateStore()
   useWallet()
   handleRouterHistory()
   useVotingPlugins()
   handleGovernanceAssetsStore()
+  useMembers()
   useEffect(() => {
     tokenService.fetchSolanaTokenList()
   }, [])
   const { loadMarket } = useMarketStore()
-  const { nftsGovernedTokenAccounts } = useGovernanceAssets()
-
+  const { governedTokenAccounts } = useGovernanceAssets()
+  const possibleNftsAccounts = governedTokenAccounts.filter(
+    (x) => x.isSol || x.isNft
+  )
   const { getNfts } = useTreasuryAccountStore()
   const { getOwnedDeposits, resetDepositState } = useDepositStore()
   const { realm, realmInfo, symbol, ownTokenRecord, config } = useRealm()
@@ -42,8 +49,8 @@ function App({ Component, pageProps }) {
   const connection = useWalletStore((s) => s.connection)
   const client = useVotePluginsClientStore((s) => s.state.vsrClient)
   const realmName = realmInfo?.displayName ?? realm?.account?.name
-  const prevStringifyNftsGovernedTokenAccounts = usePrevious(
-    JSON.stringify(nftsGovernedTokenAccounts)
+  const prevStringifyPossibleNftsAccounts = usePrevious(
+    JSON.stringify(possibleNftsAccounts)
   )
   const title = realmName ? `${realmName}` : 'Solana Governance'
 
@@ -106,31 +113,39 @@ function App({ Component, pageProps }) {
       }
     }
     changeFavicon(faviconUrl)
-  }, [faviconUrl])
+  }, [faviconSelector])
   useEffect(() => {
     document.title = title
   }, [title])
   useEffect(() => {
     if (
-      prevStringifyNftsGovernedTokenAccounts !==
-        JSON.stringify(nftsGovernedTokenAccounts) &&
+      prevStringifyPossibleNftsAccounts !==
+        JSON.stringify(possibleNftsAccounts) &&
       realm?.pubkey
     ) {
-      getNfts(nftsGovernedTokenAccounts, connection.current)
+      getNfts(possibleNftsAccounts, connection.current)
     }
-  }, [JSON.stringify(nftsGovernedTokenAccounts), realm?.pubkey.toBase58()])
+  }, [JSON.stringify(possibleNftsAccounts), realm?.pubkey.toBase58()])
+
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      style={{
+        backgroundImage: `url('/background_orca.svg')`,
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <ErrorBoundary>
-        <ThemeProvider defaultTheme="Mango">
-          <WalletIdentityProvider appName={'Realms'}>
-            <NavBar />
-            <Notifications />
-            <PageBodyContainer>
-              <Component {...pageProps} />
-            </PageBodyContainer>
-          </WalletIdentityProvider>
-        </ThemeProvider>
+        {/* <ThemeProvider defaultTheme="Dark"> */}
+        <WalletIdentityProvider appName={'Realms'}>
+          <NavBar />
+          <Notifications />
+          <PageBodyContainer>
+            <Component {...pageProps} />
+          </PageBodyContainer>
+        </WalletIdentityProvider>
+        {/* </ThemeProvider> */}
       </ErrorBoundary>
       <Footer />
     </div>

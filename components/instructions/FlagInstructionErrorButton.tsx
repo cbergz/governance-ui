@@ -8,7 +8,6 @@ import {
 } from '@solana/spl-governance'
 import { ProgramAccount } from '@solana/spl-governance'
 import { RpcContext } from '@solana/spl-governance'
-import useRealm from '@hooks/useRealm'
 import useWalletStore from 'stores/useWalletStore'
 import { PlayState } from './ExecuteInstructionButton'
 import { ExclamationCircleIcon } from '@heroicons/react/solid'
@@ -29,7 +28,6 @@ export function FlagInstructionErrorButton({
   playState: PlayState
   proposalAuthority: ProgramAccount<TokenOwnerRecord> | undefined
 }) {
-  const { realmInfo } = useRealm()
   const wallet = useWalletStore((s) => s.current)
   const connection = useWalletStore((s) => s.connection)
 
@@ -46,7 +44,7 @@ export function FlagInstructionErrorButton({
     try {
       const rpcContext = new RpcContext(
         new PublicKey(proposal.owner.toString()),
-        getProgramVersionForRealm(realmInfo!),
+        getProgramVersionForRealm(),
         wallet!,
         connection.current,
         connection.endpoint

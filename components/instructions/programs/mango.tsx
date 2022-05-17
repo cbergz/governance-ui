@@ -6,6 +6,8 @@ import {
   MangoInstructionLayout,
 } from '@blockworks-foundation/mango-client'
 import dayjs from 'dayjs'
+import { tryGetTokenMint } from '@utils/tokens'
+import { getMintDecimalAmountFromNatural } from '@tools/sdk/units'
 
 function displayInstructionArgument(decodedArgs, argName) {
   return (
@@ -87,7 +89,21 @@ export const MANGO_INSTRUCTIONS = {
         _accounts: AccountMetaData[]
       ) => {
         const args = MangoInstructionLayout.decode(Buffer.from(data), 0).Deposit
-        return <>{displayAllArgs(args)}</>
+        const mint = await tryGetTokenMint(_connection, _accounts[6].pubkey)
+        if (mint) {
+          return (
+            <>
+              Amount:{' '}
+              {getMintDecimalAmountFromNatural(
+                mint!.account!,
+                args.quantity
+              ).toFormat()}{' '}
+              ({args.quantity.toNumber()})
+            </>
+          )
+        } else {
+          return <>{displayAllArgs(args)}</>
+        }
       },
     },
     4: {
@@ -213,16 +229,25 @@ export const MANGO_INSTRUCTIONS = {
         ])
         const args = MangoInstructionLayout.decode(Buffer.from(data), 0)
           .ChangePerpMarketParams2
+        const mngoPerPeriod = !args.mngoPerPeriodOption
+          ? perpMarket.liquidityMiningInfo.mngoPerPeriod
+          : args.mngoPerPeriod
+        const maxDepthBps = !args.maxDepthBpsOption
+          ? perpMarket.liquidityMiningInfo.maxDepthBps
+          : args.maxDepthBps
+        const targetPeriodLength = !args.targetPeriodLengthOption
+          ? perpMarket.liquidityMiningInfo.targetPeriodLength
+          : args.targetPeriodLength
         const progress =
           1 -
           perpMarket.liquidityMiningInfo.mngoLeft.toNumber() /
-            args.mngoPerPeriod.toNumber()
+            mngoPerPeriod.toNumber()
         const start = perpMarket.liquidityMiningInfo.periodStart.toNumber()
         const now = Date.now() / 1000
         const elapsed = now - start
         const est = start + elapsed / progress
         const maxDepthUi =
-          (args.maxDepthBps.toNumber() * perpMarket.baseLotSize.toNumber()) /
+          (maxDepthBps.toNumber() * perpMarket.baseLotSize.toNumber()) /
           Math.pow(10, perpMarket.baseDecimals)
         return (
           <>
@@ -239,17 +264,13 @@ export const MANGO_INSTRUCTIONS = {
               <div className="col-span- py-3">
                 <p className="mb-0">Target period length</p>
                 <div className="font-bold">
-                  {(
-                    perpMarket.liquidityMiningInfo.targetPeriodLength.toNumber() /
-                    60
-                  ).toFixed()}{' '}
-                  minutes
+                  {(targetPeriodLength.toNumber() / 60).toFixed()} minutes
                 </div>
               </div>
               <div className="col-span-1 py-3">
                 <p className="mb-0">MNGO per period</p>
                 <div className="font-bold">
-                  {(args.mngoPerPeriod.toNumber() / Math.pow(10, 6)).toFixed(2)}
+                  {(mngoPerPeriod.toNumber() / Math.pow(10, 6)).toFixed(2)}
                 </div>
               </div>
               <div className="col-span-1 py-3">

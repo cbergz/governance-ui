@@ -1,5 +1,5 @@
 import useRealm from '@hooks/useRealm'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import useWalletStore from 'stores/useWalletStore'
 import {
   ProgramAccount,
@@ -16,9 +16,16 @@ import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import dayjs from 'dayjs'
 import { notify } from '@utils/notifications'
 import Loading from '@components/Loading'
-import { sendSignedTransaction } from '@utils/sendTransactions'
 import useVotePluginsClientStore from 'stores/useVotePluginsClientStore'
 import useNftPluginStore from 'NftVotePlugin/store/nftPluginStore'
+import { sleep } from '@project-serum/common'
+import { NftVoterClient } from '@solana/governance-program-library'
+import { chunks } from '@utils/helpers'
+import {
+  getNftRegistrarPDA,
+  getNftVoterWeightRecord,
+} from 'NftVotePlugin/sdk/accounts'
+import { sendSignedTransaction } from '@utils/send'
 
 const MyProposalsBn = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false)
@@ -29,6 +36,10 @@ const MyProposalsBn = () => {
   const { current: connection } = useWalletStore((s) => s.connection)
   const ownVoteRecordsByProposal = useWalletStore(
     (s) => s.ownVoteRecordsByProposal
+  )
+  const [ownNftVoteRecords, setOwnNftVoteRecords] = useState<any[]>([])
+  const ownNftVoteRecordsFilterd = ownNftVoteRecords.filter(
+    (x) => !ownVoteRecordsByProposal[x.account.proposal.toBase58()]
   )
   const maxVoterWeight =
     useNftPluginStore((s) => s.state.maxVoteRecord)?.pubkey || undefined
@@ -42,6 +53,7 @@ const MyProposalsBn = () => {
     ownTokenRecord,
     ownCouncilTokenRecord,
     realmInfo,
+    isNftMode,
   } = useRealm()
   const myProposals = useMemo(
     () =>
@@ -79,14 +91,19 @@ const MyProposalsBn = () => {
       now > timestamp
     )
   })
-  const unReleased = myProposals.filter(
+  const unReleased = [...Object.values(proposals)].filter(
     (x) =>
-      (x.account.state === ProposalState.Succeeded ||
-        x.account.state === ProposalState.Completed) &&
-      x.account.isVoteFinalized() &&
+      (x.account.state === ProposalState.Completed ||
+        x.account.state === ProposalState.Executing ||
+        x.account.state === ProposalState.SigningOff ||
+        x.account.state === ProposalState.Succeeded ||
+        x.account.state === ProposalState.ExecutingWithErrors ||
+        x.account.state === ProposalState.Defeated ||
+        x.account.state === ProposalState.Cancelled) &&
       ownVoteRecordsByProposal[x.pubkey.toBase58()] &&
       !ownVoteRecordsByProposal[x.pubkey.toBase58()]?.account.isRelinquished
   )
+
   const createdVoting = myProposals.filter((x) => {
     return (
       x.account.state === ProposalState.Voting && !x.account.isVoteFinalized()
@@ -102,7 +119,7 @@ const MyProposalsBn = () => {
     try {
       const {
         blockhash: recentBlockhash,
-      } = await connection.getRecentBlockhash()
+      } = await connection.getLatestBlockhash()
 
       const transactions: Transaction[] = []
       for (let i = 0; i < proposalsArray.length; i++) {
@@ -130,6 +147,7 @@ const MyProposalsBn = () => {
           sendSignedTransaction({ signedTransaction: transaction, connection })
         )
       )
+      await sleep(500)
       await refetchProposals()
     } catch (e) {
       console.log(e)
@@ -138,7 +156,7 @@ const MyProposalsBn = () => {
     setIsLoading(false)
   }
 
-  const cleanDrafts = () => {
+  const cleanDrafts = (toIndex = null) => {
     const withInstruction = (instructions, proposal) => {
       return withCancelProposal(
         instructions,
@@ -151,9 +169,9 @@ const MyProposalsBn = () => {
         wallet!.publicKey!
       )
     }
-    cleanSelected(drafts, withInstruction)
+    cleanSelected(drafts.slice(0, toIndex || drafts.length), withInstruction)
   }
-  const releaseAllTokens = () => {
+  const releaseAllTokens = (toIndex = null) => {
     const withInstruction = async (
       instructions,
       proposal: ProgramAccount<Proposal>
@@ -165,7 +183,7 @@ const MyProposalsBn = () => {
           : ownCouncilTokenRecord
       const governanceAuthority = wallet!.publicKey!
       const beneficiary = wallet!.publicKey!
-      const inst = withRelinquishVote(
+      const inst = await withRelinquishVote(
         instructions,
         realm!.owner,
         proposal.account.governance,
@@ -183,9 +201,12 @@ const MyProposalsBn = () => {
       )
       return inst
     }
-    cleanSelected(unReleased, withInstruction)
+    cleanSelected(
+      unReleased.slice(0, toIndex || unReleased.length),
+      withInstruction
+    )
   }
-  const finalizeAll = () => {
+  const finalizeAll = (toIndex = null) => {
     const withInstruction = (
       instructions,
       proposal: ProgramAccount<Proposal>
@@ -202,8 +223,97 @@ const MyProposalsBn = () => {
         maxVoterWeight
       )
     }
-    cleanSelected(notfinalized, withInstruction)
+    cleanSelected(
+      notfinalized.slice(0, toIndex || notfinalized.length),
+      withInstruction
+    )
   }
+  const releaseNfts = async () => {
+    setIsLoading(true)
+    const instructions: TransactionInstruction[] = []
+    const { registrar } = await getNftRegistrarPDA(
+      realm!.pubkey,
+      realm!.account.communityMint,
+      client.client!.program.programId
+    )
+    const { voterWeightPk } = await getNftVoterWeightRecord(
+      realm!.pubkey,
+      realm!.account.communityMint,
+      wallet!.publicKey!,
+      client.client!.program.programId
+    )
+    for (const i of ownNftVoteRecords) {
+      const relinquishNftVoteIx = await (client.client as NftVoterClient).program.methods
+        .relinquishNftVote()
+        .accounts({
+          registrar,
+          voterWeightRecord: voterWeightPk,
+          governance: proposals[i.account.proposal].account.governance,
+          proposal: i.account.proposal,
+          governingTokenOwner: wallet!.publicKey!,
+          voteRecord: i.publicKey,
+          beneficiary: wallet!.publicKey!,
+        })
+        .remainingAccounts([
+          { pubkey: i.publicKey, isSigner: false, isWritable: true },
+        ])
+        .instruction()
+      instructions.push(relinquishNftVoteIx)
+    }
+    try {
+      const insertChunks = chunks(instructions, 10)
+      const instArray = [...insertChunks]
+      const transactions: Transaction[] = []
+      const {
+        blockhash: recentBlockhash,
+      } = await connection.getLatestBlockhash()
+      for (let i = 0; i < instArray.length; i++) {
+        const instructionsChunk = instArray[i]
+
+        const transaction = new Transaction({
+          recentBlockhash,
+          feePayer: wallet!.publicKey!,
+        })
+        transaction.add(...instructionsChunk)
+        transaction.recentBlockhash = recentBlockhash
+        transaction.setSigners(
+          // fee payed by the wallet owner
+          wallet!.publicKey!
+        )
+        transactions.push(transaction)
+      }
+      const signedTXs = await wallet!.signAllTransactions(transactions)
+      await Promise.all(
+        signedTXs.map((transaction) =>
+          sendSignedTransaction({ signedTransaction: transaction, connection })
+        )
+      )
+      setIsLoading(false)
+      getNftsVoteRecord()
+    } catch (e) {
+      setIsLoading(false)
+      console.log(e)
+    }
+  }
+  const getNftsVoteRecord = async () => {
+    const nftClient = client.client as NftVoterClient
+    const nftVoteRecords = await nftClient.program.account.nftVoteRecord.all([
+      {
+        memcmp: {
+          offset: 72,
+          bytes: wallet!.publicKey!.toBase58(),
+        },
+      },
+    ])
+    const nftVoteRecordsFiltered = nftVoteRecords
+    setOwnNftVoteRecords(nftVoteRecordsFiltered)
+  }
+  useEffect(() => {
+    if (wallet?.publicKey && isNftMode && client.client && modalIsOpen) {
+      getNftsVoteRecord()
+    }
+  }, [client.clientType, isNftMode, wallet?.publicKey?.toBase58(), modalIsOpen])
+
   return (
     <>
       <div>
@@ -224,21 +334,21 @@ const MyProposalsBn = () => {
             <ProposalList
               title="Drafts"
               fcn={cleanDrafts}
-              btnName="Cancel all"
+              btnName="Cancel"
               proposals={drafts}
               isLoading={isLoading}
             ></ProposalList>
             <ProposalList
               title="Unfinalized"
               fcn={finalizeAll}
-              btnName="Finalize all"
+              btnName="Finalize"
               proposals={notfinalized}
               isLoading={isLoading}
             ></ProposalList>
             <ProposalList
-              title="Unreleased tokens"
+              title="Unreleased proposals"
               fcn={releaseAllTokens}
-              btnName="Release all"
+              btnName="Release"
               proposals={unReleased}
               isLoading={isLoading}
             ></ProposalList>
@@ -249,6 +359,22 @@ const MyProposalsBn = () => {
               proposals={createdVoting}
               isLoading={isLoading}
             ></ProposalList>
+            {isNftMode && ownNftVoteRecordsFilterd.length !== 0 && (
+              <div>
+                <h4 className="flex items-center mb-3">
+                  Unreleased nfts ({ownNftVoteRecordsFilterd.length})
+                  <Button
+                    isLoading={isLoading}
+                    disabled={isLoading || !ownNftVoteRecordsFilterd.length}
+                    onClick={releaseNfts}
+                    className="ml-2"
+                    small
+                  >
+                    Release nfts
+                  </Button>
+                </h4>
+              </div>
+            )}
           </>
         </Modal>
       )}
@@ -264,7 +390,7 @@ const ProposalList = ({
   isLoading,
 }: {
   title: string
-  fcn: () => void
+  fcn: (count?) => void
   btnName: string
   proposals: ProgramAccount<Proposal>[]
   isLoading: boolean
@@ -275,9 +401,25 @@ const ProposalList = ({
       <h4 className="flex items-center mb-3">
         {title} ({proposals.length})
         {btnName && proposals.length !== 0 && (
-          <Button small className="ml-auto" onClick={fcn} disabled={isLoading}>
-            {btnName}
-          </Button>
+          <div className="ml-auto">
+            <Button
+              small
+              isLoading={isLoading}
+              className="mr-3"
+              onClick={() => fcn(5)}
+              disabled={isLoading}
+            >
+              {btnName} first 5
+            </Button>
+            <Button
+              small
+              isLoading={isLoading}
+              onClick={() => fcn()}
+              disabled={isLoading}
+            >
+              {btnName} all
+            </Button>
+          </div>
         )}
       </h4>
       <div className="mb-3 ">

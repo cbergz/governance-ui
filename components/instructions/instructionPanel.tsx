@@ -5,7 +5,6 @@ import { ChevronDownIcon } from '@heroicons/react/solid'
 import { useEffect, useRef, useState } from 'react'
 import useWalletStore from 'stores/useWalletStore'
 import { RpcContext } from '@solana/spl-governance'
-import useRealm from '@hooks/useRealm'
 import { getProgramVersionForRealm } from '@models/registry/api'
 import {
   ExecuteAllInstructionButton,
@@ -14,7 +13,6 @@ import {
 
 export function InstructionPanel() {
   const { instructions, proposal } = useProposal()
-  const { realmInfo } = useRealm()
   const mounted = useRef(false)
   useEffect(() => {
     mounted.current = true
@@ -38,7 +36,7 @@ export function InstructionPanel() {
     if (ineligibleToSee && proposal) {
       const rpcContext = new RpcContext(
         proposal?.owner,
-        getProgramVersionForRealm(realmInfo!),
+        getProgramVersionForRealm(),
         wallet!,
         connection.current,
         connection.endpoint

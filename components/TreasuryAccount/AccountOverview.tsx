@@ -15,7 +15,6 @@ import useWalletStore from 'stores/useWalletStore'
 import AccountHeader from './AccountHeader'
 import DepositNFT from './DepositNFT'
 import SendTokens from './SendTokens'
-import GenericSendTokens, { GenericSendTokensProps } from './GenericSendTokens'
 import {
   ExternalLinkIcon,
   PlusCircleIcon,
@@ -35,20 +34,23 @@ import {
 } from 'Strategies/protocols/mango/tools'
 import useMarketStore from 'Strategies/store/marketStore'
 import LoadingRows from './LoadingRows'
-import TokenAccounts from './TokenAccounts'
+import TradeOnSerum, { TradeOnSerumProps } from './TradeOnSerum'
+import { AccountType } from '@utils/uiTypes/assets'
 
 const AccountOverview = () => {
   const router = useRouter()
   const currentAccount = useTreasuryAccountStore((s) => s.currentAccount)
-  const governanceNfts = useTreasuryAccountStore((s) => s.governanceNfts)
+  const nftsPerPubkey = useTreasuryAccountStore((s) => s.governanceNfts)
   const nftsCount =
     currentAccount?.governance && currentAccount.isNft
-      ? governanceNfts[currentAccount?.governance?.pubkey.toBase58()]?.length
+      ? nftsPerPubkey[currentAccount?.governance?.pubkey.toBase58()]?.length
       : 0
   const { symbol } = useRealm()
   const { fmtUrlWithCluster } = useQueryContext()
   const isNFT = currentAccount?.isNft
   const isSol = currentAccount?.isSol
+  const isSplToken = currentAccount?.type === AccountType.TOKEN
+  const isAuxiliaryAccount = currentAccount?.type === AccountType.AuxiliaryToken
   const { canUseTransferInstruction } = useGovernanceAssets()
   const connection = useWalletStore((s) => s.connection)
   const recentActivity = useTreasuryAccountStore((s) => s.recentActivity)
@@ -61,7 +63,7 @@ const AccountOverview = () => {
   const [openNftDepositModal, setOpenNftDepositModal] = useState(false)
   const [openCommonSendModal, setOpenCommonSendModal] = useState(false)
   const [openMsolConvertModal, setOpenMsolConvertModal] = useState(false)
-  const accountPublicKey = currentAccount?.transferAddress
+  const accountPublicKey = currentAccount?.extensions.transferAddress
   const strategies = useStrategiesStore((s) => s.strategies)
   const [accountInvestments, setAccountInvestments] = useState<
     TreasuryStrategy[]
@@ -71,27 +73,28 @@ const AccountOverview = () => {
   >([])
   const [showStrategies, setShowStrategies] = useState(false)
   const [
-    genericSendTokenInfo,
-    setGenericSendTokenInfo,
-  ] = useState<GenericSendTokensProps | null>(null)
-  const [
     proposedInvestment,
     setProposedInvestment,
   ] = useState<TreasuryStrategy | null>(null)
   const [isCopied, setIsCopied] = useState<boolean>(false)
+  const [
+    tradeSerumInfo,
+    setTradeSerumInfo,
+  ] = useState<TradeOnSerumProps | null>(null)
 
   useEffect(() => {
     if (strategies.length > 0) {
       const eligibleInvestments = strategies.filter(
         (strat) =>
-          strat.handledMint === currentAccount?.token?.account.mint.toString()
+          strat.handledMint ===
+          currentAccount?.extensions.token?.account.mint.toString()
       )
       setEligibleInvestments(eligibleInvestments)
     }
   }, [currentAccount, strategies])
   useEffect(() => {
     const handleGetMangoAccounts = async () => {
-      const currentAccountMint = currentAccount?.token?.account.mint
+      const currentAccountMint = currentAccount?.extensions.token?.account.mint
       const currentPositions = calculateAllDepositsInMangoAccountsForMint(
         mngoAccounts,
         currentAccountMint!,
@@ -146,9 +149,9 @@ const AccountOverview = () => {
     <>
       <div className="flex items-center justify-between mb-2 py-2">
         <h2 className="mb-0">
-          {currentAccount?.transferAddress &&
-          getAccountName(currentAccount.transferAddress)
-            ? getAccountName(currentAccount.transferAddress)
+          {currentAccount?.extensions.transferAddress &&
+          getAccountName(currentAccount.extensions.transferAddress)
+            ? getAccountName(currentAccount.extensions.transferAddress)
             : accountPublicKey &&
               abbreviateAddress(accountPublicKey as PublicKey)}
         </h2>
@@ -157,9 +160,7 @@ const AccountOverview = () => {
             <p
               className="cursor-pointer default-transition text-primary-light hover:text-primary-dark"
               onClick={() => {
-                const url = fmtUrlWithCluster(
-                  `/dao/${symbol}/gallery/${currentAccount.transferAddress}`
-                )
+                const url = fmtUrlWithCluster(`/dao/${symbol}/gallery`)
                 router.push(url)
               }}
             >
@@ -170,7 +171,7 @@ const AccountOverview = () => {
             className="default-transition flex items-center text-primary-light hover:text-primary-dark text-sm"
             href={
               accountPublicKey
-                ? getExplorerUrl(connection.endpoint, accountPublicKey)
+                ? getExplorerUrl(connection.cluster, accountPublicKey)
                 : ''
             }
             target="_blank"
@@ -184,42 +185,60 @@ const AccountOverview = () => {
       </div>
       <AccountHeader />
       <div
-        className={`flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 pb-8 px-4`}
+        className={`flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 pb-8 px-4 justify-center`}
       >
-        <div className="relative w-full">
+        <div className="relative w-full max-w-lg">
           {isCopied && (
             <div className="absolute bg-bkg-1 left-1/2 p-2 rounded text-fgd-3 text-xs transform -translate-x-1/2 -top-10">
               Copied to Clipboard
             </div>
           )}
           <Button
-            className="w-full"
+            className="w-full max-w-lg"
             onClick={() =>
               isNFT
                 ? setOpenNftDepositModal(true)
-                : handleCopyAddress(currentAccount?.transferAddress!.toBase58())
+                : handleCopyAddress(
+                    currentAccount?.extensions.transferAddress!.toBase58()
+                  )
             }
           >
             {isNFT ? 'Deposit' : 'Copy Deposit Address'}
           </Button>
         </div>
-        <Button
-          tooltipMessage={
-            !canUseTransferInstruction
-              ? 'You need to have connected wallet with ability to create token transfer proposals'
-              : isNFT && nftsCount === 0
-              ? 'Please deposit nfts first'
-              : ''
-          }
-          className="w-full"
-          onClick={() => setOpenCommonSendModal(true)}
-          disabled={!canUseTransferInstruction || (isNFT && nftsCount === 0)}
-        >
-          Send
-        </Button>
+        {isSplToken && (
+          <Button
+            tooltipMessage={
+              !canUseTransferInstruction
+                ? 'You need to have connected wallet with ability to create token transfer proposals'
+                : ''
+            }
+            className="w-full"
+            onClick={() => setTradeSerumInfo({ tokenAccount: currentAccount })}
+            disabled={!canUseTransferInstruction}
+          >
+            Trade On Serum
+          </Button>
+        )}
+        {!isAuxiliaryAccount && (
+          <Button
+            tooltipMessage={
+              !canUseTransferInstruction
+                ? 'You need to have connected wallet with ability to create token transfer proposals'
+                : isNFT && nftsCount === 0
+                ? 'Please deposit nfts first'
+                : ''
+            }
+            className="w-full max-w-lg"
+            onClick={() => setOpenCommonSendModal(true)}
+            disabled={!canUseTransferInstruction || (isNFT && nftsCount === 0)}
+          >
+            Send
+          </Button>
+        )}
         {isSol ? (
           <Button
-            className="w-full"
+            className="w-full max-w-lg"
             onClick={() => setOpenMsolConvertModal(true)}
             disabled={!canUseTransferInstruction}
           >
@@ -234,69 +253,63 @@ const AccountOverview = () => {
           </Button>
         ) : null}
       </div>
-      <div className="pb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="mb-0">
-            {showStrategies ? 'Available Investments' : 'Current Investments'}
-          </h3>
-          <LinkButton
-            className="flex items-center text-primary-light whitespace-nowrap"
-            onClick={() => setShowStrategies(!showStrategies)}
-          >
-            {showStrategies ? (
-              <>
-                <XCircleIcon className="h-5 mr-2 w-5" />
-                Cancel
-              </>
+      {!isAuxiliaryAccount && (
+        <div className="pb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="mb-0">
+              {showStrategies ? 'Available Investments' : 'Current Investments'}
+            </h3>
+            <LinkButton
+              className="flex items-center text-primary-light whitespace-nowrap"
+              onClick={() => setShowStrategies(!showStrategies)}
+            >
+              {showStrategies ? (
+                <>
+                  <XCircleIcon className="h-5 mr-2 w-5" />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <PlusCircleIcon className="h-5 mr-2 w-5" />
+                  New Investment
+                </>
+              )}
+            </LinkButton>
+          </div>
+          {showStrategies ? (
+            eligibleInvestments.length > 0 ? (
+              eligibleInvestments.map((strat, i) => (
+                <StrategyCard
+                  key={strat.handledTokenSymbol + i}
+                  currentMangoDeposits={currentMangoDeposits}
+                  onClick={() => setProposedInvestment(strat)}
+                  strat={strat}
+                />
+              ))
             ) : (
-              <>
-                <PlusCircleIcon className="h-5 mr-2 w-5" />
-                New Investment
-              </>
-            )}
-          </LinkButton>
-        </div>
-        {showStrategies ? (
-          eligibleInvestments.length > 0 ? (
-            eligibleInvestments.map((strat, i) => (
+              <div className="border border-fgd-4 p-4 rounded-md">
+                <p className="text-center text-fgd-3">
+                  No investments available for this account
+                </p>
+              </div>
+            )
+          ) : accountInvestments.length > 0 ? (
+            accountInvestments.map((strat, i) => (
               <StrategyCard
                 key={strat.handledTokenSymbol + i}
-                currentMangoDeposits={currentMangoDeposits}
-                onClick={() => setProposedInvestment(strat)}
                 strat={strat}
+                currentMangoDeposits={currentMangoDeposits}
               />
             ))
           ) : (
             <div className="border border-fgd-4 p-4 rounded-md">
               <p className="text-center text-fgd-3">
-                No investments available for this account
+                No investments for this account
               </p>
             </div>
-          )
-        ) : accountInvestments.length > 0 ? (
-          accountInvestments.map((strat, i) => (
-            <StrategyCard
-              key={strat.handledTokenSymbol + i}
-              strat={strat}
-              currentMangoDeposits={currentMangoDeposits}
-            />
-          ))
-        ) : (
-          <div className="border border-fgd-4 p-4 rounded-md">
-            <p className="text-center text-fgd-3">
-              No investments for this account
-            </p>
-          </div>
-        )}
-      </div>
-      {/* Only display owned token accounts if is SOL */}
-      {isSol && (
-        <div className="pb-8">
-          <h3 className="mb-4">Associated Token Accounts</h3>
-          <TokenAccounts setSendTokenInfo={setGenericSendTokenInfo} />
+          )}
         </div>
       )}
-
       <h3 className="mb-4">Recent Activity</h3>
       <div>
         {isLoadingRecentActivity ? (
@@ -306,11 +319,7 @@ const AccountOverview = () => {
             <a
               href={
                 activity.signature
-                  ? getExplorerUrl(
-                      connection.endpoint,
-                      activity.signature,
-                      'tx'
-                    )
+                  ? getExplorerUrl(connection.cluster, activity.signature, 'tx')
                   : ''
               }
               target="_blank"
@@ -390,15 +399,15 @@ const AccountOverview = () => {
           <ConvertToMsol />
         </Modal>
       )}
-      {genericSendTokenInfo && (
+      {tradeSerumInfo && (
         <Modal
           sizeClassName="sm:max-w-3xl"
           onClose={() => {
-            setGenericSendTokenInfo(null)
+            setTradeSerumInfo(null)
           }}
-          isOpen={!!genericSendTokenInfo}
+          isOpen={!!tradeSerumInfo}
         >
-          <GenericSendTokens {...genericSendTokenInfo} />
+          <TradeOnSerum {...tradeSerumInfo} />
         </Modal>
       )}
     </>

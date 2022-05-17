@@ -1,24 +1,24 @@
 import React from 'react'
 import useRealm from 'hooks/useRealm'
 import { CogIcon, UsersIcon, ChatAlt2Icon } from '@heroicons/react/outline'
-import { ChevronLeftIcon, /*BadgeCheckIcon*/ } from '@heroicons/react/solid'
+import { ChevronLeftIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
 // import { ExternalLinkIcon } from '@heroicons/react/outline'
 // import { getRealmExplorerHost } from 'tools/routing'
 // import Tooltip from './Tooltip'
-import useMembers from './Members/useMembers'
+import useMembersStore from 'stores/useMembersStore'
 
 const RealmHeader = () => {
   const { fmtUrlWithCluster } = useQueryContext()
   const { realm, realmInfo, realmDisplayName, symbol } = useRealm()
-  //const { REALM } = process.env
-  const { activeMembers } = useMembers()
-
+  const activeMembers = useMembersStore((s) => s.compact.activeMembers)
   const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
 
   // const explorerHost = getRealmExplorerHost(realmInfo)
   // const realmUrl = `https://${explorerHost}/#/realm/${realmInfo?.realmId.toBase58()}?programId=${realmInfo?.programId.toBase58()}`
+  // const forumUrl = `https://forums.orca.so/`
+
   const forumUrl = `https://forums.orca.so/`
 
   return (

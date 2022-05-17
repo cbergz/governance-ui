@@ -1,5 +1,5 @@
 import { Menu } from '@headlessui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { CheckCircleIcon, ChevronDownIcon } from '@heroicons/react/solid'
 import styled from '@emotion/styled'
 import useWalletStore from '../stores/useWalletStore'
@@ -7,17 +7,9 @@ import {
   getWalletProviderByUrl,
   WALLET_PROVIDERS,
 } from '../utils/wallet-adapters'
-import {
-  AddressImage,
-  DisplayAddress,
-  useAddressName,
-  useWalletIdentity,
-} from '@cardinal/namespaces-components'
-import { BackspaceIcon } from '@heroicons/react/solid'
+import { AddressImage, DisplayAddress } from '@cardinal/namespaces-components'
 import { UserCircleIcon } from '@heroicons/react/outline'
 import { abbreviateAddress } from '@utils/formatting'
-import TwitterIcon from './TwitterIcon'
-import Switch from './Switch'
 
 const StyledWalletProviderLabel = styled.p`
   font-size: 0.65rem;
@@ -37,19 +29,6 @@ const ConnectWalletButton = (props) => {
     providerUrl,
   ])
 
-  const [useDevnet, setUseDevnet] = useState(false)
-  const handleToggleDevnet = () => {
-    setUseDevnet(!useDevnet)
-    if (useDevnet) {
-      window.location.replace(`${window.location.pathname}`)
-    } else {
-      window.location.replace(`${window.location.href}?cluster=devnet`)
-    }
-  }
-  useEffect(() => {
-    setUseDevnet(connection.cluster === 'devnet')
-  }, [connection.cluster])
-
   const handleConnectDisconnect = async () => {
     try {
       if (connected) {
@@ -61,13 +40,6 @@ const ConnectWalletButton = (props) => {
       console.warn('handleConnectDisconnect', e)
     }
   }
-
-  const { show } = useWalletIdentity()
-
-  const { displayName } = useAddressName(
-    connection.current,
-    current?.publicKey || undefined
-  )
 
   const walletAddressFormatted = current?.publicKey
     ? abbreviateAddress(current?.publicKey)
@@ -170,49 +142,6 @@ const ConnectWalletButton = (props) => {
                       <hr
                         className={`border border-fgd-3 opacity-50 mt-2 mb-2`}
                       ></hr>
-                      <Menu.Item
-                        key={'twitter'}
-                        onClick={() =>
-                          show(
-                            // @ts-ignore
-                            current,
-                            connection.current,
-                            connection.cluster
-                          )
-                        }
-                      >
-                        <button className="flex default-transition h-9 items-center p-2 w-full hover:bg-bkg-3 hover:cursor-pointer hover:rounded font-normal focus:outline-none">
-                          <TwitterIcon className="h-4 w-4 mr-2" />
-                          <span className="text-sm">
-                            {displayName ? 'Edit Twitter' : 'Link Twitter'}
-                          </span>
-                        </button>
-                      </Menu.Item>
-                      <Menu.Item
-                        key={'disconnect'}
-                        onClick={handleConnectDisconnect}
-                      >
-                        <button className="flex default-transition h-9 items-center p-2 w-full hover:bg-bkg-3 hover:cursor-pointer hover:rounded font-normal focus:outline-none">
-                          <BackspaceIcon className="h-4 w-4 mr-2" />
-                          <span className="text-sm">Disconnect</span>
-                        </button>
-                      </Menu.Item>
-                      <Menu.Item
-                        key={'devnet'}
-                        onClick={() => {
-                          handleToggleDevnet()
-                        }}
-                      >
-                        <button className="flex default-transition h-9 items-center p-2 w-full hover:bg-bkg-3 hover:cursor-pointer hover:rounded font-normal focus:outline-none">
-                          <span className="text-sm">Devnet</span>
-                          <Switch
-                            checked={useDevnet}
-                            onChange={() => {
-                              handleToggleDevnet()
-                            }}
-                          />
-                        </button>
-                      </Menu.Item>
                     </>
                   )}
                 </>

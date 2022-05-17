@@ -31,6 +31,7 @@ import {
 import { getMintMetadata } from '@components/instructions/programs/splToken'
 import Account from './Account'
 import { abbreviateAddress } from '@utils/formatting'
+
 interface DepositBox {
   mintPk: PublicKey
   mint: MintInfo
@@ -131,6 +132,7 @@ const LockTokensAccount = ({ tokenOwnerRecordPk }) => {
         setReducedDeposits([])
       }
     } catch (e) {
+      console.log(e)
       notify({
         type: 'error',
         message: "Can't fetch deposits",

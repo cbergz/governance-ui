@@ -36,7 +36,7 @@ const DepositCommunityTokensBtn = ({ className = '' }) => {
         : null
     const rpcContext = new RpcContext(
       realm.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection,
       endpoint

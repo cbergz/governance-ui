@@ -43,14 +43,14 @@ const VoteCommentModal: FunctionComponent<VoteCommentModalProps> = ({
   const connection = useWalletStore((s) => s.connection)
   const { proposal } = useWalletStore((s) => s.selectedProposal)
   const { fetchChatMessages } = useWalletStore((s) => s.actions)
-  const { realm, realmInfo } = useRealm()
+  const { realm } = useRealm()
   const { refetchProposals } = useWalletStore((s) => s.actions)
 
   const submitVote = async (vote: YesNoVote) => {
     setSubmitting(true)
     const rpcContext = new RpcContext(
       proposal!.owner,
-      getProgramVersionForRealm(realmInfo!),
+      getProgramVersionForRealm(),
       wallet!,
       connection.current,
       connection.endpoint
@@ -68,7 +68,7 @@ const VoteCommentModal: FunctionComponent<VoteCommentModalProps> = ({
         rpcContext,
         realm!,
         proposal!,
-        voterTokenRecord.pubkey,
+        voterTokenRecord,
         vote,
         msg,
         client

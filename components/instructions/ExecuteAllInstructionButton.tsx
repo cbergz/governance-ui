@@ -11,7 +11,6 @@ import { PublicKey } from '@solana/web3.js'
 import { CheckCircleIcon, PlayIcon, RefreshIcon } from '@heroicons/react/solid'
 import Button from '@components/Button'
 import Tooltip from '@components/Tooltip'
-import useRealm from '@hooks/useRealm'
 import { getProgramVersionForRealm } from '@models/registry/api'
 import { executeInstructions } from 'actions/executeInstructions'
 import useWalletStore from 'stores/useWalletStore'
@@ -35,7 +34,6 @@ export function ExecuteAllInstructionButton({
   playing: PlayState
   setPlaying: React.Dispatch<React.SetStateAction<PlayState>>
 }) {
-  const { realmInfo } = useRealm()
   const wallet = useWalletStore((s) => s.current)
   const connection = useWalletStore((s) => s.connection)
   const refetchProposals = useWalletStore((s) => s.actions.refetchProposals)
@@ -51,7 +49,7 @@ export function ExecuteAllInstructionButton({
 
   const rpcContext = new RpcContext(
     new PublicKey(proposal.owner.toString()),
-    getProgramVersionForRealm(realmInfo!),
+    getProgramVersionForRealm(),
     wallet!,
     connection.current,
     connection.endpoint

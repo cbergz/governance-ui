@@ -39,7 +39,7 @@ const Footer = () => {
         </div>
 
         <div className="flex justify-center items-center gap-x-10 sm:gap-x-20 md:gap-x-24">
-        <a
+          <a
             rel="noreferrer"
             href="https://www.orca.so/"
             target="_blank"

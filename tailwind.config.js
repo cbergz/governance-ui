@@ -11,9 +11,6 @@ module.exports = {
     purgeLayersByDefault: true,
   },
   theme: {
-    backgroundImage: {
-      orca: "url('background_orca.svg')",
-    },
     fontFamily: {
       display: ['PT Mono, monospace'],
       body: ['Inter, sans-serif'],

@@ -1,4 +1,4 @@
-import { ThemeProvider } from 'next-themes'
+// import { ThemeProvider } from 'next-themes'
 import '@dialectlabs/react-ui/index.css'
 import '../styles/index.css'
 import useWallet from '../hooks/useWallet'
@@ -137,15 +137,15 @@ function App({ Component, pageProps }) {
       }}
     >
       <ErrorBoundary>
-        <ThemeProvider defaultTheme="Dark">
-          <WalletIdentityProvider appName={'Realms'}>
-            <NavBar />
-            <Notifications />
-            <PageBodyContainer>
-              <Component {...pageProps} />
-            </PageBodyContainer>
-          </WalletIdentityProvider>
-        </ThemeProvider>
+        {/* <ThemeProvider defaultTheme="Dark"> */}
+        <WalletIdentityProvider appName={'Realms'}>
+          <NavBar />
+          <Notifications />
+          <PageBodyContainer>
+            <Component {...pageProps} />
+          </PageBodyContainer>
+        </WalletIdentityProvider>
+        {/* </ThemeProvider> */}
       </ErrorBoundary>
       <Footer />
     </div>

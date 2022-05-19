@@ -9074,10 +9074,10 @@ neo-async@^2.6.0:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-next-router-mock@^0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-0.6.7.tgz#8883ed81f245074462e72199fe94002cd85db5e2"
-  integrity sha512-y3yFyTkplpmvCpy1TnOuMTUQDLt2wg9RwTwvg9WcCRko4lqkBYAQM+ph5sqtNpKQ1xngDwzjPjshVBQJvhb/hg==
+next-router-mock@^0.6.9:
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-0.6.9.tgz#8f7d65e3bfe0c6688d2ac333e71d31b77b6735db"
+  integrity sha512-EDhkG9PfoWs1q9W+Ebg+CYTMC2THzn344v+M9dkG3RZzB9be48A6A/FOzmfpwMR9psRe1piMC0PWPuf9eLhXDw==
 
 next-themes@^0.1.1:
   version "0.1.1"

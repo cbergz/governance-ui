@@ -26,7 +26,7 @@
     "@blockworks-foundation/mango-client": "^3.4.8",
     "@blockworks-foundation/voter-stake-registry-client": "^0.2.3",
     "@cardinal/namespaces-components": "^2.5.13",
-    "@dialectlabs/react": "0.5.1",
+    "@dialectlabs/react": "0.5.4",
     "@dialectlabs/react-ui": "0.8.2",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",

@@ -63,6 +63,7 @@ export const VotingPowerCard: React.FC<{
               <TokenDeposit
                 mint={councilMint}
                 tokenRole={GoverningTokenRole.Council}
+                councilVote={true}
                 setHasGovPower={setHasGovPower}
               />
             </div>

@@ -68,7 +68,7 @@ export default function VSRCommunityVotingPower(props: Props) {
         .shiftedBy(-mint.decimals)
     : new BigNumber('0')
 
-  const { data: delegatedTors } = useTokenOwnerRecordsDelegatedToUser()
+  const delegatedTors = useTokenOwnerRecordsDelegatedToUser()
   const selectedDelegator = useSelectedDelegatorStore(
     (s) => s.communityDelegator
   )

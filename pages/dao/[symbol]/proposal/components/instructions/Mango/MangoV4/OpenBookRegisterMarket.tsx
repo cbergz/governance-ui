@@ -19,8 +19,6 @@ import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
 import ForwarderProgram, {
   useForwarderProgramHelpers,
 } from '@components/ForwarderProgram/ForwarderProgram'
-import ProgramSelector from '@components/Mango/ProgramSelector'
-import useProgramSelector from '@components/Mango/useProgramSelector'
 
 interface OpenBookRegisterMarketForm {
   governedAccount: AssetAccount | null
@@ -42,11 +40,7 @@ const OpenBookRegisterMarket = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const wallet = useWalletOnePointOh()
-  const programSelectorHook = useProgramSelector()
-  const { mangoClient, mangoGroup } = UseMangoV4(
-    programSelectorHook.program?.val,
-    programSelectorHook.program?.group
-  )
+  const { mangoClient, mangoGroup } = UseMangoV4()
   const { assetAccounts } = useGovernanceAssets()
   const forwarderProgramHelpers = useForwarderProgramHelpers()
   const solAccounts = assetAccounts.filter(
@@ -237,9 +231,6 @@ const OpenBookRegisterMarket = ({
 
   return (
     <>
-      <ProgramSelector
-        programSelectorHook={programSelectorHook}
-      ></ProgramSelector>
       {form && (
         <InstructionForm
           outerForm={form}

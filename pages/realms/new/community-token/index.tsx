@@ -72,11 +72,7 @@ const transformFormData2RealmCreation = (formData: CommunityTokenForm) => {
         formData.transferCommunityMintAuthority ?? true,
       // COUNCIL INFO
       createCouncil: formData.addCouncil ?? false,
-      communityTokenConfig: new GoverningTokenConfigAccountArgs({
-        tokenType: GoverningTokenType.Liquid,
-        voterWeightAddin: undefined,
-        maxVoterWeightAddin: undefined,
-      }),
+
       existingCouncilMintPk: formData.councilTokenMintAddress
         ? new PublicKey(formData.councilTokenMintAddress)
         : undefined,

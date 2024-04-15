@@ -21,8 +21,6 @@ import {
 import { PublicKey, TransactionInstruction } from '@solana/web3.js'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { WSOL_MINT } from '@components/instructions/tools'
-import ProgramSelector from '@components/Mango/ProgramSelector'
-import useProgramSelector from '@components/Mango/useProgramSelector'
 
 type NamePkVal = {
   name: string
@@ -33,7 +31,6 @@ interface AdminTokenWithdrawTokenFeesForm {
   governedAccount: AssetAccount | null
   token: null | NamePkVal
   holdupTime: number
-  withdrawFromAllBanks: boolean
 }
 
 const AdminTokenWithdrawTokenFees = ({
@@ -44,11 +41,7 @@ const AdminTokenWithdrawTokenFees = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const wallet = useWalletOnePointOh()
-  const programSelectorHook = useProgramSelector()
-  const { mangoClient, mangoGroup } = UseMangoV4(
-    programSelectorHook.program?.val,
-    programSelectorHook.program?.group
-  )
+  const { mangoClient, mangoGroup } = UseMangoV4()
   const { assetAccounts } = useGovernanceAssets()
   const { connection } = useConnection()
   const solAccounts = assetAccounts.filter(
@@ -63,7 +56,6 @@ const AdminTokenWithdrawTokenFees = ({
     governedAccount: null,
     token: null,
     holdupTime: 0,
-    withdrawFromAllBanks: false,
   })
   const [formErrors, setFormErrors] = useState({})
   const { handleSetInstructions } = useContext(NewProposalContext)
@@ -83,64 +75,60 @@ const AdminTokenWithdrawTokenFees = ({
       form.governedAccount?.governance?.account &&
       wallet?.publicKey
     ) {
-      const banks = form.withdrawFromAllBanks
-        ? [...mangoGroup!.banksMapByMint.values()].map((x) => x[0])
-        : [mangoGroup!.banksMapByMint.get(form.token!.value.toBase58())![0]]
+      const bank = mangoGroup!.banksMapByMint.get(
+        form.token!.value.toBase58()
+      )![0]
+      const ataAddress = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        bank.mint,
+        form.governedAccount.extensions.transferAddress!,
+        true
+      )
 
-      for (const bank of banks) {
-        const ataAddress = await Token.getAssociatedTokenAddress(
-          ASSOCIATED_TOKEN_PROGRAM_ID,
-          TOKEN_PROGRAM_ID,
-          bank.mint,
-          form.governedAccount.extensions.transferAddress!,
-          true
+      const depositAccountInfo = await connection.getAccountInfo(ataAddress)
+      if (!depositAccountInfo) {
+        // generate the instruction for creating the ATA
+        prerequisiteInstructions.push(
+          Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            bank.mint,
+            ataAddress,
+            form.governedAccount.extensions.transferAddress!,
+            wallet.publicKey
+          )
         )
+      }
 
-        const depositAccountInfo = await connection.getAccountInfo(ataAddress)
-        if (!depositAccountInfo) {
-          // generate the instruction for creating the ATA
-          prerequisiteInstructions.push(
-            Token.createAssociatedTokenAccountInstruction(
-              ASSOCIATED_TOKEN_PROGRAM_ID,
+      const ix = await mangoClient!.program.methods
+        .adminTokenWithdrawFees()
+        .accounts({
+          group: mangoGroup!.publicKey,
+          admin: form.governedAccount.extensions.transferAddress,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          bank: bank.publicKey,
+          vault: bank.vault,
+          tokenAccount: ataAddress,
+        })
+        .instruction()
+
+      additionalSerializedInstructions.push(serializeInstructionToBase64(ix))
+
+      if (bank.mint.toBase58() === WSOL_MINT) {
+        additionalSerializedInstructions.push(
+          serializeInstructionToBase64(
+            Token.createCloseAccountInstruction(
               TOKEN_PROGRAM_ID,
-              bank.mint,
               ataAddress,
               form.governedAccount.extensions.transferAddress!,
-              wallet.publicKey
+              form.governedAccount.extensions.transferAddress!,
+              []
             )
           )
-        }
-
-        const ix = await mangoClient!.program.methods
-          .adminTokenWithdrawFees()
-          .accounts({
-            group: mangoGroup!.publicKey,
-            admin: form.governedAccount.extensions.transferAddress,
-            tokenProgram: TOKEN_PROGRAM_ID,
-            bank: bank.publicKey,
-            vault: bank.vault,
-            tokenAccount: ataAddress,
-          })
-          .instruction()
-
-        additionalSerializedInstructions.push(serializeInstructionToBase64(ix))
-
-        if (bank.mint.toBase58() === WSOL_MINT) {
-          additionalSerializedInstructions.push(
-            serializeInstructionToBase64(
-              Token.createCloseAccountInstruction(
-                TOKEN_PROGRAM_ID,
-                ataAddress,
-                form.governedAccount.extensions.transferAddress!,
-                form.governedAccount.extensions.transferAddress!,
-                []
-              )
-            )
-          )
-        }
+        )
       }
     }
-
     const obj: UiInstruction = {
       prerequisiteInstructions,
       serializedInstruction: serializedInstruction,
@@ -148,7 +136,6 @@ const AdminTokenWithdrawTokenFees = ({
       isValid,
       governance: form.governedAccount?.governance,
       customHoldUpTime: form.holdupTime,
-      chunkBy: 2,
     }
     return obj
   }
@@ -205,19 +192,10 @@ const AdminTokenWithdrawTokenFees = ({
       inputType: 'number',
       name: 'holdupTime',
     },
-    {
-      label: 'Withdraw from all banks',
-      initialValue: form.withdrawFromAllBanks,
-      type: InstructionInputType.SWITCH,
-      name: 'withdrawFromAllBanks',
-    },
   ]
 
   return (
     <>
-      <ProgramSelector
-        programSelectorHook={programSelectorHook}
-      ></ProgramSelector>
       {form && (
         <InstructionForm
           outerForm={form}

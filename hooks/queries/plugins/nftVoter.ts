@@ -24,7 +24,6 @@ export const useVotingNfts = (ownerPk: PublicKey | undefined) => {
   const { connection } = useConnection()
   const realmPk = useSelectedRealmPubkey()
   const { data: nfts } = useDigitalAssetsByOwner(ownerPk)
-  console.log('nfts', nfts)
 
   const registrar = useQuery(nftRegistrarQuery(connection, realmPk)).data
     ?.result

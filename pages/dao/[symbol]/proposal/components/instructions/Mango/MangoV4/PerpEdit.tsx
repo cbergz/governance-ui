@@ -22,8 +22,6 @@ import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
 import ForwarderProgram, {
   useForwarderProgramHelpers,
 } from '@components/ForwarderProgram/ForwarderProgram'
-import ProgramSelector from '@components/Mango/ProgramSelector'
-import useProgramSelector from '@components/Mango/useProgramSelector'
 
 const keyToLabel = {
   oraclePk: 'Oracle',
@@ -57,7 +55,6 @@ const keyToLabel = {
   reduceOnly: 'Reduce Only',
   resetStablePrice: 'Reset Stable Price',
   positivePnlLiquidationFee: 'Positive Pnl Liquidation Fee',
-  platformLiquidationFee: 'Platform Liquidation Fee',
   forceClose: 'Force Close',
 }
 
@@ -100,7 +97,6 @@ interface PerpEditForm {
   positivePnlLiquidationFee: number
   holdupTime: number
   forceClose: boolean
-  platformLiquidationFee: number
 }
 
 const defaultFormValues = {
@@ -138,7 +134,6 @@ const defaultFormValues = {
   positivePnlLiquidationFee: 0,
   holdupTime: 0,
   forceClose: false,
-  platformLiquidationFee: 0,
 }
 
 const PerpEdit = ({
@@ -149,11 +144,7 @@ const PerpEdit = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const wallet = useWalletOnePointOh()
-  const programSelectorHook = useProgramSelector()
-  const { mangoClient, mangoGroup, getAdditionalLabelInfo } = UseMangoV4(
-    programSelectorHook.program?.val,
-    programSelectorHook.program?.group
-  )
+  const { mangoClient, mangoGroup, getAdditionalLabelInfo } = UseMangoV4()
   const { assetAccounts } = useGovernanceAssets()
   const [perps, setPerps] = useState<NameMarketIndexVal[]>([])
   const [forcedValues, setForcedValues] = useState<string[]>([])
@@ -249,8 +240,7 @@ const PerpEdit = ({
           values.resetStablePrice!,
           getNullOrTransform(values.positivePnlLiquidationFee, null, Number),
           getNullOrTransform(values.name, null, String),
-          values.forceClose!,
-          getNullOrTransform(values.platformLiquidationFee, null, Number)
+          values.forceClose!
         )
         .accounts({
           group: mangoGroup!.publicKey,
@@ -315,11 +305,7 @@ const PerpEdit = ({
   }, [mangoGroup])
 
   useEffect(() => {
-    if (
-      form.perp &&
-      mangoGroup &&
-      mangoGroup!.perpMarketsMapByMarketIndex.get(form.perp.value)
-    ) {
+    if (form.perp && mangoGroup) {
       const currentPerp = mangoGroup!.perpMarketsMapByMarketIndex.get(
         form.perp.value
       )!
@@ -602,14 +588,6 @@ const PerpEdit = ({
       name: 'positivePnlLiquidationFee',
     },
     {
-      label: keyToLabel['platformLiquidationFee'],
-      subtitle: getAdditionalLabelInfo('platformLiquidationFee'),
-      initialValue: form.platformLiquidationFee,
-      type: InstructionInputType.INPUT,
-      inputType: 'number',
-      name: 'platformLiquidationFee',
-    },
-    {
       label: keyToLabel['groupInsuranceFund'],
       subtitle: getAdditionalLabelInfo('groupInsuranceFund'),
       initialValue: form.groupInsuranceFund,
@@ -640,9 +618,6 @@ const PerpEdit = ({
   ]
   return (
     <>
-      <ProgramSelector
-        programSelectorHook={programSelectorHook}
-      ></ProgramSelector>
       {form && (
         <>
           <InstructionForm

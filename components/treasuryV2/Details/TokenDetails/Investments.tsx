@@ -198,6 +198,7 @@ export default function Investments(props: Props) {
           {alternativeInvestment === 'Mango' && (
             <Modal
               isOpen
+              sizeClassName="sm:max-w-3xl"
               onClose={() => setAlternativeInvestment(null)}
             >
               <MangoModal account={props.asset.raw}></MangoModal>

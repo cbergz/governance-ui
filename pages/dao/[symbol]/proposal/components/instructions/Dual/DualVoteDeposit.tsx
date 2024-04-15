@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { ProgramAccount, Governance } from '@solana/spl-governance'
 import {
   UiInstruction,
@@ -14,7 +14,6 @@ import { getDualFinanceVoteDepositSchema } from '@utils/validations'
 import Tooltip from '@components/Tooltip'
 import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
 import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
-import { useRealmPubkeyByPkOrSymbol } from '@hooks/selectedRealm/useSelectedRealmPubkey'
 
 const DualVoteDeposit = ({
   index,
@@ -25,40 +24,44 @@ const DualVoteDeposit = ({
 }) => {
   const [form, setForm] = useState<DualFinanceVoteDepositForm>({
     numTokens: 0,
-    realm: '',
+    realm: 'EGYbpow8V9gt8JFmadFYai4sjfwc7Vc9gazU735hE6u7',
     delegateToken: undefined,
   })
   const connection = useLegacyConnectionContext()
   const wallet = useWalletOnePointOh()
   const shouldBeGoverned = !!(index !== 0 && governance)
   const { assetAccounts } = useGovernanceAssets()
-
+  const [governedAccount, setGovernedAccount] = useState<
+    ProgramAccount<Governance> | undefined
+  >(undefined)
   const [formErrors, setFormErrors] = useState({})
   const { handleSetInstructions } = useContext(NewProposalContext)
   const handleSetForm = ({ propertyName, value }) => {
     setFormErrors({})
     setForm({ ...form, [propertyName]: value })
   }
-
-  const realmInputParsed = useRealmPubkeyByPkOrSymbol(form.realm)
-
+  function getInstruction(): Promise<UiInstruction> {
+    return getVoteDepositInstruction({
+      connection,
+      form,
+      schema,
+      setFormErrors,
+      wallet,
+    })
+  }
+  const schema = useMemo(getDualFinanceVoteDepositSchema, [])
   useEffect(() => {
-    const schema = getDualFinanceVoteDepositSchema()
-    function getInstruction(): Promise<UiInstruction> {
-      return getVoteDepositInstruction({
-        connection,
-        form,
-        schema,
-        setFormErrors,
-        wallet,
-        realmPk: realmInputParsed,
-      })
-    }
     handleSetInstructions(
-      { governedAccount: form.delegateToken?.governance, getInstruction },
+      { governedAccount: governedAccount, getInstruction },
       index
     )
-  }, [form, handleSetInstructions, index, connection, wallet, realmInputParsed])
+  }, [form, governedAccount, handleSetInstructions, index, connection, wallet])
+  useEffect(() => {
+    handleSetForm({ value: undefined, propertyName: 'mintPk' })
+  }, [form.delegateToken])
+  useEffect(() => {
+    setGovernedAccount(form.delegateToken?.governance)
+  }, [form.delegateToken])
 
   // TODO: Include this in the config instruction which can optionally be done
   // if the project doesnt need to change where the tokens get returned to.
@@ -82,6 +85,7 @@ const DualVoteDeposit = ({
         label="Realm"
         value={form.realm}
         type="text"
+        disabled={true}
         onChange={(evt) =>
           handleSetForm({
             value: evt.target.value,

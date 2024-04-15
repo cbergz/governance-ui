@@ -438,6 +438,7 @@ const LockTokensAccount = ({ tokenOwnerRecordPk }) => {
           <TokenDeposit
             mint={councilMint}
             tokenRole={GoverningTokenRole.Council}
+            councilVote={true}
             inAccountDetails={true}
           />
         </div>

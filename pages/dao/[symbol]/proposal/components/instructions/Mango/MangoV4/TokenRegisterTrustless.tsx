@@ -14,11 +14,12 @@ import InstructionForm, { InstructionInput } from '../../FormCreator'
 import { InstructionInputType } from '../../inputInstructionType'
 import UseMangoV4 from '../../../../../../../../hooks/useMangoV4'
 import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
+import { ReferralProvider } from '@jup-ag/referral-sdk'
+import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
+import { JUPITER_REFERRAL_PK } from '@tools/constants'
 import ForwarderProgram, {
   useForwarderProgramHelpers,
 } from '@components/ForwarderProgram/ForwarderProgram'
-import ProgramSelector from '@components/Mango/ProgramSelector'
-import useProgramSelector from '@components/Mango/useProgramSelector'
 
 interface TokenRegisterTrustlessForm {
   governedAccount: AssetAccount | null
@@ -37,11 +38,7 @@ const TokenRegisterTrustless = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const wallet = useWalletOnePointOh()
-  const programSelectorHook = useProgramSelector()
-  const { mangoClient, mangoGroup } = UseMangoV4(
-    programSelectorHook.program?.val,
-    programSelectorHook.program?.group
-  )
+  const { mangoClient, mangoGroup } = UseMangoV4()
   const { assetAccounts } = useGovernanceAssets()
   const solAccounts = assetAccounts.filter(
     (x) =>
@@ -52,7 +49,7 @@ const TokenRegisterTrustless = ({
           x.extensions.transferAddress?.equals(mangoGroup?.admin)))
   )
   const forwarderProgramHelpers = useForwarderProgramHelpers()
-
+  const connection = useLegacyConnectionContext()
   const shouldBeGoverned = !!(index !== 0 && governance)
   const [form, setForm] = useState<TokenRegisterTrustlessForm>({
     governedAccount: null,
@@ -91,6 +88,27 @@ const TokenRegisterTrustless = ({
           rent: SYSVAR_RENT_PUBKEY,
         })
         .instruction()
+
+      const rp = new ReferralProvider(connection.current)
+
+      const tx = await rp.initializeReferralTokenAccount({
+        payerPubKey: form.governedAccount.extensions.transferAddress!,
+        referralAccountPubKey: JUPITER_REFERRAL_PK,
+        mint: new PublicKey(form.mintPk),
+      })
+      const isExistingAccount = await connection.current.getAccountInfo(
+        tx.referralTokenAccountPubKey
+      )
+
+      if (!isExistingAccount) {
+        additionalSerializedInstructions.push(
+          ...tx.tx.instructions.map((x) =>
+            serializeInstructionToBase64(
+              forwarderProgramHelpers.withForwarderWrapper(x)
+            )
+          )
+        )
+      }
 
       serializedInstruction = serializeInstructionToBase64(
         forwarderProgramHelpers.withForwarderWrapper(ix)
@@ -195,9 +213,6 @@ const TokenRegisterTrustless = ({
 
   return (
     <>
-      <ProgramSelector
-        programSelectorHook={programSelectorHook}
-      ></ProgramSelector>
       {form && (
         <InstructionForm
           outerForm={form}

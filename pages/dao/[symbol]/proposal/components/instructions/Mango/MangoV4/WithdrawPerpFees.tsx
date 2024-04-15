@@ -21,8 +21,6 @@ import {
 import { TransactionInstruction } from '@solana/web3.js'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { PerpMarketIndex } from '@blockworks-foundation/mango-v4'
-import ProgramSelector from '@components/Mango/ProgramSelector'
-import useProgramSelector from '@components/Mango/useProgramSelector'
 
 type NameMarketIndexVal = {
   name: string
@@ -43,11 +41,7 @@ const WithdrawPerpFees = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const wallet = useWalletOnePointOh()
-  const programSelectorHook = useProgramSelector()
-  const { mangoClient, mangoGroup } = UseMangoV4(
-    programSelectorHook.program?.val,
-    programSelectorHook.program?.group
-  )
+  const { mangoClient, mangoGroup } = UseMangoV4()
   const { assetAccounts } = useGovernanceAssets()
   const { connection } = useConnection()
   const solAccounts = assetAccounts.filter(
@@ -191,9 +185,6 @@ const WithdrawPerpFees = ({
 
   return (
     <>
-      <ProgramSelector
-        programSelectorHook={programSelectorHook}
-      ></ProgramSelector>
       {form && (
         <InstructionForm
           outerForm={form}

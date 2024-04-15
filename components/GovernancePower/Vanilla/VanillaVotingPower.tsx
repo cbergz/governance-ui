@@ -5,7 +5,7 @@ import { useTokenOwnerRecordsDelegatedToUser } from '@hooks/queries/tokenOwnerRe
 import { useRealmQuery } from '@hooks/queries/realm'
 import { useMintInfoByPubkeyQuery } from '@hooks/queries/mintInfo'
 import { useConnection } from '@solana/wallet-adapter-react'
-import { getVanillaGovpower, useVanillaGovpower } from '@hooks/queries/governancePower'
+import { getVanillaGovpower } from '@hooks/queries/governancePower'
 import {
   useAddressQuery_CommunityTokenOwner,
   useAddressQuery_CouncilTokenOwner,
@@ -49,14 +49,17 @@ export default function VanillaVotingPower({
 
   const mintInfo = useMintInfoByPubkeyQuery(relevantMint).data?.result
 
-  const personalAmount = useVanillaGovpower(relevantTOR)
+  const { result: personalAmount } = useAsync(
+    async () => relevantTOR && getVanillaGovpower(connection, relevantTOR),
+    [connection, relevantTOR]
+  )
 
   // If the user is using a delegator, we want to show that and not count the other delegators
   const selectedDelegator = useSelectedDelegatorStore((s) =>
     role === 'community' ? s.communityDelegator : s.councilDelegator
   )
 
-  const { data: torsDelegatedToUser } = useTokenOwnerRecordsDelegatedToUser()
+  const torsDelegatedToUser = useTokenOwnerRecordsDelegatedToUser()
 
   const { result: delegatorsAmount } = useAsync(
     async () =>

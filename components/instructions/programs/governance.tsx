@@ -35,7 +35,6 @@ import {
 import { dryRunInstruction } from 'actions/dryRunInstruction'
 import { tryGetMint } from '../../../utils/tokens'
 import { fetchProgramVersion } from '@hooks/queries/useProgramVersionQuery'
-import { fetchTokenAccountByPubkey } from '@hooks/queries/tokenAccount'
 
 const TOKEN_TYPES = { 0: 'Liquid', 1: 'Membership', 2: 'Disabled' }
 const governanceProgramId = 'GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'
@@ -84,16 +83,9 @@ export const GOVERNANCE_INSTRUCTIONS = {
         )
 
         //accounts[2] is token account not mint account
-        const { result: tokenAccount } = await fetchTokenAccountByPubkey(
-          connection,
-          accounts[2].pubkey
-        )
-        if (!tokenAccount) {
-          throw new Error()
-        }
         const mintInfoQuery = await fetchMintInfoByPubkey(
           connection,
-          tokenAccount.mint
+          accounts[2].pubkey
         )
 
         const args = deserializeBorsh(

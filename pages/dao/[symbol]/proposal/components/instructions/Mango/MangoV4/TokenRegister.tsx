@@ -16,18 +16,18 @@ import UseMangoV4 from '../../../../../../../../hooks/useMangoV4'
 import { toNative } from '@blockworks-foundation/mango-v4'
 import { BN } from '@coral-xyz/anchor'
 import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
+import { ReferralProvider } from '@jup-ag/referral-sdk'
+import { JUPITER_REFERRAL_PK } from '@tools/constants'
+import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
 import ForwarderProgram, {
   useForwarderProgramHelpers,
 } from '@components/ForwarderProgram/ForwarderProgram'
 import { REDUCE_ONLY_OPTIONS } from '@utils/Mango/listingTools'
-import ProgramSelector from '@components/Mango/ProgramSelector'
-import useProgramSelector from '@components/Mango/useProgramSelector'
 
 interface TokenRegisterForm {
   governedAccount: AssetAccount | null
   mintPk: string
   oraclePk: string
-  fallbackOracle: string
   oracleConfFilter: number
   maxStalenessSlots: string
   name: string
@@ -62,10 +62,6 @@ interface TokenRegisterForm {
   interestTargetUtilization: number
   depositLimit: number
   insuranceFound: boolean
-  zeroUtilRate: number
-  platformLiquidationFee: number
-  disableAssetLiquidation: boolean
-  collateralFeePerDay: number
 }
 
 const TokenRegister = ({
@@ -76,12 +72,9 @@ const TokenRegister = ({
   governance: ProgramAccount<Governance> | null
 }) => {
   const wallet = useWalletOnePointOh()
-  const programSelectorHook = useProgramSelector()
-  const { mangoClient, mangoGroup, getAdditionalLabelInfo } = UseMangoV4(
-    programSelectorHook.program?.val,
-    programSelectorHook.program?.group
-  )
+  const { mangoClient, mangoGroup, getAdditionalLabelInfo } = UseMangoV4()
   const { assetAccounts } = useGovernanceAssets()
+  const connection = useLegacyConnectionContext()
   const forwarderProgramHelpers = useForwarderProgramHelpers()
 
   const solAccounts = assetAccounts.filter(
@@ -96,7 +89,6 @@ const TokenRegister = ({
     mintPk: '',
     maxStalenessSlots: '',
     oraclePk: '',
-    fallbackOracle: '',
     oracleConfFilter: 0.1,
     name: '',
     adjustmentFactor: 0.004, // rate parameters are chosen to be the same for all high asset weight tokens,
@@ -130,10 +122,6 @@ const TokenRegister = ({
     interestTargetUtilization: 0.5,
     interestCurveScaling: 4,
     insuranceFound: false,
-    zeroUtilRate: 0,
-    platformLiquidationFee: 0,
-    disableAssetLiquidation: false,
-    collateralFeePerDay: 0,
   })
   const [formErrors, setFormErrors] = useState({})
   const { handleSetInstructions } = useContext(NewProposalContext)
@@ -146,6 +134,7 @@ const TokenRegister = ({
   async function getInstruction(): Promise<UiInstruction> {
     const isValid = await validateInstruction()
     let serializedInstruction = ''
+    const additionalSerializedInstructions: string[] = []
     if (
       isValid &&
       form.governedAccount?.governance?.account &&
@@ -192,11 +181,7 @@ const TokenRegister = ({
           Number(form.interestCurveScaling),
           Number(form.interestTargetUtilization),
           form.insuranceFound,
-          new BN(form.depositLimit),
-          Number(form.zeroUtilRate),
-          Number(form.platformLiquidationFee),
-          form.disableAssetLiquidation,
-          Number(form.collateralFeePerDay)
+          new BN(form.depositLimit)
         )
         .accounts({
           group: mangoGroup!.publicKey,
@@ -205,9 +190,29 @@ const TokenRegister = ({
           oracle: new PublicKey(form.oraclePk),
           payer: form.governedAccount.extensions.transferAddress,
           rent: SYSVAR_RENT_PUBKEY,
-          fallbackOracle: new PublicKey(form.fallbackOracle),
         })
         .instruction()
+
+      const rp = new ReferralProvider(connection.current)
+
+      const tx = await rp.initializeReferralTokenAccount({
+        payerPubKey: form.governedAccount.extensions.transferAddress!,
+        referralAccountPubKey: JUPITER_REFERRAL_PK,
+        mint: new PublicKey(form.mintPk),
+      })
+      const isExistingAccount = await connection.current.getAccountInfo(
+        tx.referralTokenAccountPubKey
+      )
+
+      if (!isExistingAccount) {
+        additionalSerializedInstructions.push(
+          ...tx.tx.instructions.map((x) =>
+            serializeInstructionToBase64(
+              forwarderProgramHelpers.withForwarderWrapper(x)
+            )
+          )
+        )
+      }
 
       serializedInstruction = serializeInstructionToBase64(
         forwarderProgramHelpers.withForwarderWrapper(ix)
@@ -293,12 +298,6 @@ const TokenRegister = ({
       initialValue: form.oraclePk,
       type: InstructionInputType.INPUT,
       name: 'oraclePk',
-    },
-    {
-      label: `Fallback oracle`,
-      initialValue: form.fallbackOracle,
-      type: InstructionInputType.INPUT,
-      name: 'fallbackOracle',
     },
     {
       label: `Oracle Confidence Filter`,
@@ -560,44 +559,10 @@ const TokenRegister = ({
       type: InstructionInputType.SWITCH,
       name: 'insuranceFound',
     },
-    {
-      label: 'Zero Util Rate',
-      subtitle: getAdditionalLabelInfo('zeroUtilRate'),
-      initialValue: form.zeroUtilRate,
-      type: InstructionInputType.INPUT,
-      inputType: 'number',
-      name: 'zeroUtilRate',
-    },
-    {
-      label: 'Platform Liquidation Fee',
-      subtitle: getAdditionalLabelInfo('platformLiquidationFee'),
-      initialValue: form.platformLiquidationFee,
-      type: InstructionInputType.INPUT,
-      inputType: 'number',
-      name: 'platformLiquidationFee',
-    },
-    {
-      label: 'Disable Asset Liquidation',
-      subtitle: getAdditionalLabelInfo('disableAssetLiquidation'),
-      initialValue: form.disableAssetLiquidation,
-      type: InstructionInputType.SWITCH,
-      name: 'disableAssetLiquidation',
-    },
-    {
-      label: 'Collateral Fee Per Day',
-      subtitle: getAdditionalLabelInfo('collateralFeePerDay'),
-      initialValue: form.collateralFeePerDay,
-      type: InstructionInputType.INPUT,
-      inputType: 'number',
-      name: 'collateralFeePerDay',
-    },
   ]
 
   return (
     <>
-      <ProgramSelector
-        programSelectorHook={programSelectorHook}
-      ></ProgramSelector>
       {form && (
         <InstructionForm
           outerForm={form}

@@ -3,7 +3,6 @@ import {
   getGovernanceAccounts,
   getTokenOwnerRecord,
   pubkeyFilter,
-  booleanFilter,
 } from '@solana/spl-governance'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { useQuery } from '@tanstack/react-query'
@@ -13,6 +12,7 @@ import {
   useAddressQuery_CouncilTokenOwner,
 } from './addresses/tokenOwnerRecord'
 import { useRealmQuery } from './realm'
+import { useMemo } from 'react'
 import useLegacyConnectionContext from '@hooks/useLegacyConnectionContext'
 import useWalletOnePointOh from '@hooks/useWalletOnePointOh'
 import queryClient from './queryClient'
@@ -27,24 +27,14 @@ export const tokenOwnerRecordQueryKeys = {
   byRealm: (endpoint: string, realm: PublicKey) => [
     ...tokenOwnerRecordQueryKeys.all(endpoint),
     'by Realm',
-    realm.toString(),
+    realm,
   ],
-  byRealmXDelegate: (
-    endpoint: string,
-    realm: PublicKey,
-    delegate: PublicKey
-  ) => [
-    ...tokenOwnerRecordQueryKeys.byRealm(endpoint, realm),
-    'by Delegate',
-    delegate.toString(),
-  ],
-
   byProgramXOwner: (endpoint: string, program: PublicKey, owner: PublicKey) => [
     ...tokenOwnerRecordQueryKeys.all(endpoint),
     'by Program',
-    program.toString(),
+    program,
     'by Owner',
-    owner.toString(),
+    owner,
   ],
 }
 
@@ -130,58 +120,24 @@ export const useTokenOwnerRecordsForRealmQuery = () => {
 
   return query
 }
-// 1 + 32 + 32 + 32 + 8 + 4 + 4 + 1 + 1 + 6
+
 // TODO filter in the gPA (would need rpc to also index)
 export const useTokenOwnerRecordsDelegatedToUser = () => {
-  const connection = useLegacyConnectionContext()
-  const realm = useRealmQuery().data?.result
+  const { data: tors } = useTokenOwnerRecordsForRealmQuery()
   const wallet = useWalletOnePointOh()
-  const walletPk = wallet?.publicKey ?? undefined
-  const enabled = realm !== undefined && walletPk !== undefined
-  const query = useQuery({
-    queryKey: enabled
-      ? tokenOwnerRecordQueryKeys.byRealmXDelegate(
-          connection.current.rpcEndpoint,
-          realm.pubkey,
-          walletPk
-        )
-      : undefined,
-    queryFn: async () => {
-      if (!enabled) throw new Error()
+  const delagatingTors = useMemo(
+    () =>
+      tors?.filter(
+        (x) =>
+          wallet?.publicKey !== undefined &&
+          wallet?.publicKey !== null &&
+          x.account.governanceDelegate !== undefined &&
+          x.account.governanceDelegate.equals(wallet.publicKey)
+      ),
+    [tors, wallet?.publicKey]
+  )
 
-      const realmFilter = pubkeyFilter(1, realm.pubkey)
-      const hasDelegateFilter = booleanFilter(
-        1 + 32 + 32 + 32 + 8 + 4 + 4 + 1 + 1 + 6,
-        true
-      )
-      const delegatedToUserFilter = pubkeyFilter(
-        1 + 32 + 32 + 32 + 8 + 4 + 4 + 1 + 1 + 6 + 1,
-        walletPk
-      )
-      if (!realmFilter || !delegatedToUserFilter) throw new Error() // unclear why this would ever happen, probably it just cannot
-
-      const results = await getGovernanceAccounts(
-        connection.current,
-        realm.owner,
-        TokenOwnerRecord,
-        [realmFilter, hasDelegateFilter, delegatedToUserFilter]
-      )
-
-      // This may or may not be resource intensive for big DAOs, and is not too useful
-      /* 
-      results.forEach((x) => {
-        queryClient.setQueryData(
-          tokenOwnerRecordQueryKeys.byPubkey(connection.cluster, x.pubkey),
-          { found: true, result: x }
-        )
-      }) */
-
-      return results
-    },
-    enabled,
-  })
-
-  return query
+  return delagatingTors
 }
 
 const queryFn = (connection: Connection, pubkey: PublicKey) =>

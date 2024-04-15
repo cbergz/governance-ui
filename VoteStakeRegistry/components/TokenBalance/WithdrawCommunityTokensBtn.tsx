@@ -91,10 +91,7 @@ const WithDrawCommunityTokens = () => {
               )
             ).result
             if (!governance) throw new Error('failed to fetch governance')
-            if (
-              proposal.account.getTimeToVoteEnd(governance.account) > 0 &&
-              governance.account.realm.equals(realm!.pubkey)
-            ) {
+            if (proposal.account.getTimeToVoteEnd(governance.account) > 0) {
               setIsLoading(false)
               // Note: It's technically possible to withdraw the vote here but I think it would be confusing and people would end up unconsciously withdrawing their votes
               notify({

@@ -21,7 +21,6 @@ export enum PackageEnum {
   NftPlugin,
   MangoMarketV4,
   MeanFinance,
-  Squads,
   PsyFinance,
   Serum,
   Solend,
@@ -491,7 +490,7 @@ export interface DualFinanceStakingOptionForm {
   strike: number
   soName: string | undefined
   optionExpirationUnixSeconds: number
-  numTokens: string
+  numTokens: number
   lotSize: number
   baseTreasury: AssetAccount | undefined
   quoteTreasury: AssetAccount | undefined
@@ -507,7 +506,6 @@ export interface DualFinanceGsoForm {
   lotSize: number
   subscriptionPeriodEnd: number
   lockupRatio: number
-  lockupMint: string
   baseTreasury: AssetAccount | undefined
   quoteTreasury: AssetAccount | undefined
   payer: AssetAccount | undefined

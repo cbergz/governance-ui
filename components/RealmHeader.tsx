@@ -4,29 +4,16 @@ import { ChatAlt2Icon, CogIcon, UsersIcon } from '@heroicons/react/outline'
 import { ChevronLeftIcon } from '@heroicons/react/solid'
 import Link from 'next/link'
 import useQueryContext from 'hooks/useQueryContext'
-import { ExternalLinkIcon } from '@heroicons/react/outline'
-import { getRealmExplorerHost } from 'tools/routing'
-import { tryParsePublicKey } from '@tools/core/pubkey'
-import { useRealmQuery } from '@hooks/queries/realm'
-import { useConnection } from '@solana/wallet-adapter-react'
+import { useRealmConfigQuery } from '@hooks/queries/realmConfig'
 
 const RealmHeader = () => {
   const { fmtUrlWithCluster } = useQueryContext()
-  const realm = useRealmQuery().data?.result
-  const { REALM } = process.env
-  const { connection } = useConnection()
+  const config = useRealmConfigQuery().data?.result
+  const { realmInfo, symbol } = useRealm()
 
-  const { realmInfo, symbol, vsrMode } = useRealm()
+  const isBackNavVisible = realmInfo?.symbol !== 'ORCA' // hide backnav for the default realm
 
   const forumUrl = `https://forums.orca.so/`
-  const explorerHost = getRealmExplorerHost(realmInfo)
-  const realmUrl = `https://${explorerHost}/account/${realmInfo?.realmId.toBase58()}${connection.rpcEndpoint.includes("devnet") ? "?cluster=devnet" : ""}`
-
-  const [isBackNavVisible, setIsBackNavVisible] = useState(true)
-
-  useEffect(() => {
-    setIsBackNavVisible(realmInfo?.symbol !== REALM)
-  }, [realmInfo?.symbol, REALM])
 
   return (
     <div className="px-4 pt-4 pb-4 rounded-t-lg bg-bkg-2 md:px-6 md:pt-6">
@@ -66,23 +53,14 @@ const RealmHeader = () => {
           <div className="w-40 h-10 rounded-md animate-pulse bg-bkg-3" />
         )}
         <div className="flex items-center space-x-4">
-          {vsrMode === 'default' && (
-            <Link href={fmtUrlWithCluster(`/dao/${symbol}/token-stats`)}>
+          {!config?.account.communityTokenConfig.voterWeightAddin && (
+            <Link href={fmtUrlWithCluster(`/dao/${symbol}/members`)}>
               <a className="flex items-center text-sm cursor-pointer default-transition text-fgd-2 hover:text-fgd-3">
-                <ChartPieIcon className="flex-shrink-0 w-5 h-5 mr-1" />
-                {typeof symbol === 'string' && tryParsePublicKey(symbol)
-                  ? realm?.account.name
-                  : symbol}{' '}
-                stats
+                <UsersIcon className="flex-shrink-0 w-5 h-5 mr-1" />
+                Members
               </a>
             </Link>
           )}
-          <Link href={fmtUrlWithCluster(`/dao/${symbol}/members`)}>
-            <a className="flex items-center text-sm cursor-pointer default-transition text-fgd-2 hover:text-fgd-3">
-              <UsersIcon className="flex-shrink-0 w-5 h-5 mr-1" />
-              Members
-            </a>
-          </Link>
           <Link href={fmtUrlWithCluster(`/dao/${symbol}/params`)}>
             <a className="flex items-center text-sm cursor-pointer default-transition text-fgd-2 hover:text-fgd-3">
               <CogIcon className="flex-shrink-0 w-5 h-5 mr-1" />

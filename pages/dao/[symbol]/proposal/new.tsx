@@ -61,7 +61,8 @@ import VoteBySwitch from './components/VoteBySwitch'
 // import SwitchboardFundOracle from './components/instructions/Switchboard/FundOracle'
 // import WithdrawFromOracle from './components/instructions/Switchboard/WithdrawFromOracle'
 import StakeValidator from './components/instructions/Validators/StakeValidator'
-// import SanctumSplDepositStake from './components/instructions/Validators/SanctumSplDepositStake'
+import SanctumDepositStake from './components/instructions/Validators/SanctumDepositStake'
+import SanctumWithdrawStake from './components/instructions/Validators/SanctumWithdrawStake'
 import DeactivateValidatorStake from './components/instructions/Validators/DeactivateStake'
 import WithdrawValidatorStake from './components/instructions/Validators/WithdrawStake'
 import DelegateStake from './components/instructions/Validators/DelegateStake'
@@ -135,6 +136,12 @@ import { usePrevious } from '@hooks/usePrevious'
 // import DualGso from './components/instructions/Dual/DualGso'
 // import DualGsoWithdraw from './components/instructions/Dual/DualGsoWithdraw'
 import MultiChoiceForm from '../../../../components/MultiChoiceForm'
+import CloseVaults from './components/instructions/DistrubtionProgram/CloseVaults'
+import FillVaults from './components/instructions/DistrubtionProgram/FillVaults'
+import MeshRemoveMember from './components/instructions/Squads/MeshRemoveMember'
+import MeshAddMember from './components/instructions/Squads/MeshAddMember'
+import MeshChangeThresholdMember from './components/instructions/Squads/MeshChangeThresholdMember'
+import PythRecoverAccount from './components/instructions/Pyth/PythRecoverAccount'
 // import CloseVaults from './components/instructions/DistrubtionProgram/CloseVaults'
 // import FillVaults from './components/instructions/DistrubtionProgram/FillVaults'
 // import MeshRemoveMember from './components/instructions/Squads/MeshRemoveMember'
@@ -142,8 +149,13 @@ import MultiChoiceForm from '../../../../components/MultiChoiceForm'
 // import MeshChangeThresholdMember from './components/instructions/Squads/MeshChangeThresholdMember'
 // import PythRecoverAccount from './components/instructions/Pyth/PythRecoverAccount'
 import { useVoteByCouncilToggle } from '@hooks/useVoteByCouncilToggle'
-// import BurnTokens from './components/instructions/BurnTokens'
-// import RemoveLockup from './components/instructions/Validators/removeLockup'
+import BurnTokens from './components/instructions/BurnTokens'
+import RemoveLockup from './components/instructions/Validators/removeLockup'
+import SymmetryCreateBasket from './components/instructions/Symmetry/SymmetryCreateBasket'
+import SymmetryEditBasket from './components/instructions/Symmetry/SymmetryEditBasket'
+import SymmetryDeposit from './components/instructions/Symmetry/SymmetryDeposit'
+import SymmetryWithdraw from './components/instructions/Symmetry/SymmetryWithdraw'
+import PythUpdatePoolAuthority from './components/instructions/Pyth/PythUpdatePoolAuthority'
 
 const TITLE_LENGTH_LIMIT = 130
 // the true length limit is either at the tx size level, and maybe also the total account size level (I can't remember)
@@ -475,6 +487,42 @@ const New = () => {
       [Instructions.Grant]: Grant,
       [Instructions.Clawback]: Clawback,
       [Instructions.CreateAssociatedTokenAccount]: CreateAssociatedTokenAccount,
+      [Instructions.DualFinanceAirdrop]: DualAirdrop,
+      [Instructions.DualFinanceStakingOption]: StakingOption,
+      [Instructions.DualFinanceGso]: DualGso,
+      [Instructions.DualFinanceGsoWithdraw]: DualGsoWithdraw,
+      [Instructions.DualFinanceInitStrike]: InitStrike,
+      [Instructions.DualFinanceLiquidityStakingOption]: LiquidityStakingOption,
+      [Instructions.DualFinanceStakingOptionWithdraw]: DualWithdraw,
+      [Instructions.DualFinanceExerciseStakingOption]: DualExercise,
+      [Instructions.DualFinanceDelegate]: DualDelegate,
+      [Instructions.DualFinanceDelegateWithdraw]: DualVoteDepositWithdraw,
+      [Instructions.DualFinanceVoteDeposit]: DualVoteDeposit,
+      [Instructions.DaoVote]: DaoVote,
+      [Instructions.DistributionCloseVaults]: CloseVaults,
+      [Instructions.DistributionFillVaults]: FillVaults,
+      [Instructions.MeanCreateAccount]: MeanCreateAccount,
+      [Instructions.MeanFundAccount]: MeanFundAccount,
+      [Instructions.MeanWithdrawFromAccount]: MeanWithdrawFromAccount,
+      [Instructions.MeanCreateStream]: MeanCreateStream,
+      [Instructions.MeanTransferStream]: MeanTransferStream,
+      [Instructions.SquadsMeshRemoveMember]: MeshRemoveMember,
+      [Instructions.SquadsMeshAddMember]: MeshAddMember,
+      [Instructions.SquadsMeshChangeThresholdMember]: MeshChangeThresholdMember,
+      [Instructions.PythRecoverAccount]: PythRecoverAccount,
+      [Instructions.PythUpdatePoolAuthority]: PythUpdatePoolAuthority,
+      [Instructions.CreateSolendObligationAccount]: CreateObligationAccount,
+      [Instructions.InitSolendObligationAccount]: InitObligationAccount,
+      [Instructions.DepositReserveLiquidityAndObligationCollateral]: DepositReserveLiquidityAndObligationCollateral,
+      [Instructions.WithdrawObligationCollateralAndRedeemReserveLiquidity]: WithdrawObligationCollateralAndRedeemReserveLiquidity,
+      [Instructions.PsyFinanceMintAmericanOptions]: PsyFinanceMintAmericanOptions,
+      [Instructions.PsyFinanceBurnWriterForQuote]: PsyFinanceBurnWriterTokenForQuote,
+      [Instructions.PsyFinanceClaimUnderlyingPostExpiration]: PsyFinanceClaimUnderlyingPostExpiration,
+      [Instructions.PsyFinanceExerciseOption]: PsyFinanceExerciseOption,
+      [Instructions.SwitchboardFundOracle]: SwitchboardFundOracle,
+      [Instructions.WithdrawFromOracle]: WithdrawFromOracle,
+      [Instructions.RefreshSolendObligation]: RefreshObligation,
+      [Instructions.RefreshSolendReserve]: RefreshReserve,
       [Instructions.RealmConfig]: RealmConfig,
       [Instructions.CloseTokenAccount]: CloseTokenAccount,
       [Instructions.CloseMultipleTokenAccounts]: CloseMultipleTokenAccounts,
@@ -482,13 +530,75 @@ const New = () => {
       [Instructions.CreateTokenMetadata]: CreateTokenMetadata,
       [Instructions.UpdateTokenMetadata]: UpdateTokenMetadata,
       [Instructions.StakeValidator]: StakeValidator,
+      [Instructions.SanctumDepositStake]: SanctumDepositStake,
+      [Instructions.SanctumWithdrawStake]: SanctumWithdrawStake,
       [Instructions.DeactivateValidatorStake]: DeactivateValidatorStake,
       [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
       [Instructions.DelegateStake]: DelegateStake,
+      [Instructions.RemoveStakeLock]: RemoveLockup,
+      [Instructions.SplitStake]: SplitStake,
       [Instructions.DifferValidatorStake]: null,
       [Instructions.JoinDAO]: JoinDAO,
       [Instructions.RevokeGoverningTokens]: RevokeGoverningTokens,
-      [Instructions.SetMintAuthority]: SetMintAuthority,
+      // [Instructions.SagaPreOrder]: SagaPreOrder,
+      // [Instructions.DepositToMangoAccount]: MakeDepositToMangoAccount,
+      // [Instructions.DepositToMangoAccountCsv]: MakeDepositToMangoAccountCsv,
+      // [Instructions.StakeValidator]: StakeValidator,
+      // [Instructions.DeactivateValidatorStake]: DeactivateValidatorStake,
+      // [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
+      // [Instructions.DifferValidatorStake]: null,
+      // [Instructions.TransferDomainName]: TransferDomainName,
+      // [Instructions.EverlendDeposit]: DepositForm,
+      // [Instructions.EverlendWithdraw]: WithdrawForm,
+      // [Instructions.SerumInitUser]: InitUser,
+      // [Instructions.SerumGrantLockedSRM]: {
+      //   componentBuilderFunction: ({ index, governance }) => (
+      //     <GrantForm
+      //       index={index}
+      //       governance={governance}
+      //       isLocked={true}
+      //       isMsrm={false}
+      //     />
+      //   ),
+      // },
+      // [Instructions.SerumGrantLockedMSRM]: {
+      //   componentBuilderFunction: ({ index, governance }) => (
+      //     <GrantForm
+      //       index={index}
+      //       governance={governance}
+      //       isLocked={true}
+      //       isMsrm={true}
+      //     />
+      //   ),
+      // },
+      // [Instructions.SerumGrantVestSRM]: {
+      //   componentBuilderFunction: ({ index, governance }) => (
+      //     <GrantForm
+      //       index={index}
+      //       governance={governance}
+      //       isLocked={false}
+      //       isMsrm={false}
+      //     />
+      //   ),
+      // },
+      // [Instructions.SerumGrantVestMSRM]: {
+      //   componentBuilderFunction: ({ index, governance }) => (
+      //     <GrantForm
+      //       index={index}
+      //       governance={governance}
+      //       isLocked={false}
+      //       isMsrm={true}
+      //     />
+      //   ),
+      // },
+      // [Instructions.SerumUpdateGovConfigParams]: UpdateConfigParams,
+      // [Instructions.SerumUpdateGovConfigAuthority]: UpdateConfigAuthority,
+      // [Instructions.JoinDAO]: JoinDAO,
+      // [Instructions.ClaimMangoTokens]: ClaimMangoTokens,
+      // [Instructions.AddKeyToDID]: AddKeyToDID,
+      // [Instructions.RemoveKeyFromDID]: RemoveKeyFromDID,
+      // [Instructions.AddServiceToDID]: AddServiceToDID,
+      // [Instructions.RemoveServiceFromDID]: RemoveServiceFromDID,
     }),
     [governance?.pubkey?.toBase58()]
   )

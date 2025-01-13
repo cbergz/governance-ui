@@ -44,31 +44,30 @@
 //       setMangoAccountsValue(newMangoValue)
 //     }
 
-//     if (
-//       assetAccounts.length > 0 &&
-//       isFetching &&
-//       mangoClient &&
-//       mangoGroup &&
-//       realm &&
-//       !isFetchingMangoAcc &&
-//       !mangoAccWasFetched
-//     ) {
-//       console.log('123')
-//       fetchMangoValue().finally(() => {
-//         setIsFetchingMangoAcc(false)
-//         setIsFetching(false)
-//         setMangoAccWasFetched(true)
-//       })
-//     }
-//   }, [
-//     assetAccounts,
-//     isFetching,
-//     mangoClient,
-//     mangoGroup,
-//     realm,
-//     isFetchingMangoAcc,
-//     mangoAccWasFetched,
-//   ])
+    if (
+      assetAccounts.length > 0 &&
+      isFetching &&
+      mangoClient &&
+      mangoGroup &&
+      realm &&
+      !isFetchingMangoAcc &&
+      !mangoAccWasFetched
+    ) {
+      fetchMangoValue().finally(() => {
+        setIsFetchingMangoAcc(false)
+        setIsFetching(false)
+        setMangoAccWasFetched(true)
+      })
+    }
+  }, [
+    assetAccounts,
+    isFetching,
+    mangoClient,
+    mangoGroup,
+    realm,
+    isFetchingMangoAcc,
+    mangoAccWasFetched,
+  ])
 
 //   return {
 //     isFetching,

@@ -95,11 +95,12 @@ export function App(props: Props) {
 }
 
 const allowedFaviconPaths = ['/realms/']
-const allowedDomains = [
-  'https://app.realms.today',
-  'http://localhost',
-  'http://localhost:3000',
-]
+// const allowedDomains = [
+//   'https://app.realms.today',
+//   'http://localhost',
+//   'http://localhost:3000',
+//   'https://governance.orca.so/dao/ORCA'.
+// ]
 
 export function AppContents(props: Props) {
   handleRouterHistory()
@@ -156,10 +157,10 @@ export function AppContents(props: Props) {
     // Check if the domain is in the allow list
     try {
       const urlObject = new URL(fullUrl)
-      if (!allowedDomains.includes(urlObject.origin)) {
-        console.error('Domain not in allowed list')
-        return null
-      }
+      // if (!allowedDomains.includes(urlObject.origin)) {
+      //   console.error('Domain not in allowed list')
+      //   return null
+      // }
       // Check if the path is in the allow list
       if (
         !allowedFaviconPaths.some((path) => urlObject.pathname.startsWith(path))

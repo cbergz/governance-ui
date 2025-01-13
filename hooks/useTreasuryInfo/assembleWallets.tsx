@@ -13,6 +13,7 @@ import {
   AssetType,
   Token,
   RealmAuthority,
+  Asset,
   Mango,
   Sol,
 } from '@models/treasury/Asset'
@@ -32,69 +33,79 @@ import { Domain } from '@models/treasury/Domain'
 import { groupDomainsByWallet } from './groupDomainsByWallet'
 import { ConnectionContext } from '@utils/connection'
 import { PublicKey } from '@solana/web3.js'
+import {
+  MangoClient,
+  Group,
+  MangoAccount,
+  I80F48,
+  toUiDecimals,
+} from '@blockworks-foundation/mango-v4'
+import { BN } from '@coral-xyz/anchor'
 
 function isNotNull<T>(x: T | null): x is T {
   return x !== null
 }
 
-// export async function fetchMangoAccounts(
-//   assets: Asset[],
-//   mangoClient: MangoClient | null,
-//   mangoGroup: Group | null
-// ) {
-//   if (!mangoClient || !mangoGroup) {
-//     return {
-//       mangoAccountsValue: new BigNumber(0),
-//       mangoAccounts: [],
-//     }
-//   }
+export async function fetchMangoAccounts(
+  assets: Asset[],
+  mangoClient: MangoClient | null,
+  mangoGroup: Group | null
+) {
+  if (!mangoClient || !mangoGroup) {
+    return {
+      mangoAccountsValue: new BigNumber(0),
+      mangoAccounts: [],
+    }
+  }
 
-//   const tokenAccountOwners = Array.from(
-//     new Set(
-//       assets
-//         .filter((a) => a.type === AssetType.Token)
-//         .filter((a: Token) => a.raw.extensions.token)
-//         .filter((a: Token) => a.raw.extensions.token!.account.owner)
-//         .map((a: Token) => a.raw.extensions.token!.account.owner.toString())
-//     )
-//   ).map((o) => new PublicKey(o))
+  const tokenAccountOwners = Array.from(
+    new Set(
+      assets
+        .filter((a) => a.type === AssetType.Token)
+        .filter((a: Token) => a.raw.extensions.token)
+        .filter((a: Token) => a.raw.extensions.token!.account.owner)
+        .map((a: Token) => a.raw.extensions.token!.account.owner.toString())
+    )
+  ).map((o) => new PublicKey(o))
 
-//   const mangoAccounts: MangoAccount[] = []
-//   if (tokenAccountOwners.length <= 2) {
-//     for (const tokenAccountOwner of tokenAccountOwners) {
-//       const accounts = await mangoClient.getMangoAccountsForOwner(
-//         mangoGroup,
-//         tokenAccountOwner
-//       )
+  const mangoAccounts: MangoAccount[] = []
+  if (tokenAccountOwners.length <= 2) {
+    for (const tokenAccountOwner of tokenAccountOwners) {
+      const accounts = await mangoClient.getMangoAccountsForOwner(
+        mangoGroup,
+        tokenAccountOwner
+      )
 
-//       if (accounts) {
-//         mangoAccounts.push(...accounts)
-//       }
-//     }
-//   }
+      if (accounts) {
+        mangoAccounts.push(...accounts)
+      }
+    }
+  }
 
-//   const mangoAccountsValue = mangoAccounts.reduce((acc: I80F48, account) => {
-//     try {
-//       const value = account.getAssetsValue(mangoGroup!)
-//       acc = acc.add(value)
-//       return acc
-//     } catch (e) {
-//       console.log(e)
-//       return acc
-//     }
-//   }, new I80F48(new BN(0)))
+  const mangoAccountsValue = mangoAccounts.reduce((acc: I80F48, account) => {
+    try {
+      const value = account.getAssetsValue(mangoGroup!)
+      acc = acc.add(value)
+      return acc
+    } catch (e) {
+      console.log(e)
+      return acc
+    }
+  }, new I80F48(new BN(0)))
 
-//   return {
-//     mangoAccountsValue: new BigNumber(toUiDecimals(mangoAccountsValue, 6)),
-//     mangoAccounts,
-//   }
-// }
+  return {
+    mangoAccountsValue: new BigNumber(toUiDecimals(mangoAccountsValue, 6)),
+    mangoAccounts,
+  }
+}
 
 export const assembleWallets = async (
   connection: ConnectionContext,
   accounts: AssetAccount[],
   domains: Domain[],
   programId: PublicKey,
+  mangoGroup: Group | null,
+  mangoClient: MangoClient | null,
   councilMintAddress?: string,
   communityMintAddress?: string,
   councilMint?: MintInfo,
@@ -241,6 +252,19 @@ export const assembleWallets = async (
 
   const allWallets: any[] = []
   for (const wallet of Object.values(walletMap)) {
+    const { mangoAccountsValue } = await fetchMangoAccounts(
+      wallet.assets,
+      mangoClient,
+      mangoGroup
+    )
+
+    if (mangoAccountsValue.gt(0)) {
+      wallet.assets.push({
+        id: 'mango',
+        type: AssetType.Mango,
+        value: mangoAccountsValue,
+      })
+    }
 
     allWallets.push({
       ...wallet,
@@ -287,6 +311,18 @@ export const assembleWallets = async (
       )
     )
   ).filter(isNotNull)
+
+  const {
+    mangoAccountsValue: auxMangoAccountsValue,
+  } = await fetchMangoAccounts(auxiliaryAssets, mangoClient!, mangoGroup!)
+
+  if (auxMangoAccountsValue.gt(0)) {
+    auxiliaryAssets.unshift({
+      id: 'mango',
+      type: AssetType.Mango,
+      value: auxMangoAccountsValue,
+    })
+  }
 
   const auxiliaryWallets: AuxiliaryWallet[] = auxiliaryAssets.length
     ? [

@@ -37,7 +37,6 @@ import {
   UiInstruction,
 } from '@utils/uiTypes/proposalCreationTypes'
 import { notify } from 'utils/notifications'
-import Clawback from 'VoteStakeRegistry/components/instructions/Clawback'
 import Grant from 'VoteStakeRegistry/components/instructions/Grant'
 import InstructionContentContainer from './components/InstructionContentContainer'
 import ProgramUpgrade from './components/instructions/bpfUpgradeableLoader/ProgramUpgrade'
@@ -60,10 +59,6 @@ import VoteBySwitch from './components/VoteBySwitch'
 // import ConfigureNftPluginCollection from './components/instructions/NftVotingPlugin/ConfigureCollection'
 // import SwitchboardFundOracle from './components/instructions/Switchboard/FundOracle'
 // import WithdrawFromOracle from './components/instructions/Switchboard/WithdrawFromOracle'
-import StakeValidator from './components/instructions/Validators/StakeValidator'
-import SanctumDepositStake from './components/instructions/Validators/SanctumDepositStake'
-import SanctumWithdrawStake from './components/instructions/Validators/SanctumWithdrawStake'
-import DeactivateValidatorStake from './components/instructions/Validators/DeactivateStake'
 import WithdrawValidatorStake from './components/instructions/Validators/WithdrawStake'
 import DelegateStake from './components/instructions/Validators/DelegateStake'
 // import SplitStake from './components/instructions/Validators/SplitStake'
@@ -78,7 +73,6 @@ import { InstructionDataWithHoldUpTime } from 'actions/createProposal'
 // import MeanWithdrawFromAccount from './components/instructions/Mean/MeanWithdrawFromAccount'
 // import MeanCreateStream from './components/instructions/Mean/MeanCreateStream'
 // import MeanTransferStream from './components/instructions/Mean/MeanTransferStream'
-import ChangeDonation from './components/instructions/Change/ChangeDonation'
 // import VotingMintConfig from './components/instructions/Vsr/VotingMintConfig'
 // import CreateVsrRegistrar from './components/instructions/Vsr/CreateRegistrar'
 // import CreateGatewayPluginRegistrar from './components/instructions/GatewayPlugin/CreateRegistrar'
@@ -99,7 +93,6 @@ import classNames from 'classnames'
 // import TransferDomainName from './components/instructions/TransferDomainName'
 // import InitUser from './components/instructions/Serum/InitUser'
 // import GrantForm from './components/instructions/Serum/GrantForm'
-import JoinDAO from './components/instructions/JoinDAO'
 // import UpdateConfigAuthority from './components/instructions/Serum/UpdateConfigAuthority'
 // import UpdateConfigParams from './components/instructions/Serum/UpdateConfigParams'
 import { StyledLabel, inputClasses } from '@components/inputs/styles'
@@ -126,7 +119,6 @@ import SelectInstructionType from '@components/SelectInstructionType'
 // import PsyFinanceExerciseOption from './components/instructions/PsyFinance/ExerciseOption'
 import RevokeGoverningTokens from './components/instructions/SplGov/RevokeGoverningTokens'
 // import PreviousRouteBtn from '@components/PreviousRouteBtn'
-import SetMintAuthority from './components/instructions/SetMintAuthroity'
 // import LiquidityStakingOption from './components/instructions/Dual/LiquidityStakingOption'
 // import InitStrike from './components/instructions/Dual/InitStrike'
 // import IdlSetBuffer from './components/instructions/Mango/MangoV4/IdlSetBuffer'
@@ -136,12 +128,6 @@ import { usePrevious } from '@hooks/usePrevious'
 // import DualGso from './components/instructions/Dual/DualGso'
 // import DualGsoWithdraw from './components/instructions/Dual/DualGsoWithdraw'
 import MultiChoiceForm from '../../../../components/MultiChoiceForm'
-import CloseVaults from './components/instructions/DistrubtionProgram/CloseVaults'
-import FillVaults from './components/instructions/DistrubtionProgram/FillVaults'
-import MeshRemoveMember from './components/instructions/Squads/MeshRemoveMember'
-import MeshAddMember from './components/instructions/Squads/MeshAddMember'
-import MeshChangeThresholdMember from './components/instructions/Squads/MeshChangeThresholdMember'
-import PythRecoverAccount from './components/instructions/Pyth/PythRecoverAccount'
 // import CloseVaults from './components/instructions/DistrubtionProgram/CloseVaults'
 // import FillVaults from './components/instructions/DistrubtionProgram/FillVaults'
 // import MeshRemoveMember from './components/instructions/Squads/MeshRemoveMember'
@@ -149,13 +135,6 @@ import PythRecoverAccount from './components/instructions/Pyth/PythRecoverAccoun
 // import MeshChangeThresholdMember from './components/instructions/Squads/MeshChangeThresholdMember'
 // import PythRecoverAccount from './components/instructions/Pyth/PythRecoverAccount'
 import { useVoteByCouncilToggle } from '@hooks/useVoteByCouncilToggle'
-import BurnTokens from './components/instructions/BurnTokens'
-import RemoveLockup from './components/instructions/Validators/removeLockup'
-import SymmetryCreateBasket from './components/instructions/Symmetry/SymmetryCreateBasket'
-import SymmetryEditBasket from './components/instructions/Symmetry/SymmetryEditBasket'
-import SymmetryDeposit from './components/instructions/Symmetry/SymmetryDeposit'
-import SymmetryWithdraw from './components/instructions/Symmetry/SymmetryWithdraw'
-import PythUpdatePoolAuthority from './components/instructions/Pyth/PythUpdatePoolAuthority'
 
 const TITLE_LENGTH_LIMIT = 130
 // the true length limit is either at the tx size level, and maybe also the total account size level (I can't remember)
@@ -485,60 +464,14 @@ const New = () => {
       [Instructions.Base64]: CustomBase64,
       [Instructions.None]: Empty,
       [Instructions.Grant]: Grant,
-      [Instructions.Clawback]: Clawback,
       [Instructions.CreateAssociatedTokenAccount]: CreateAssociatedTokenAccount,
-      [Instructions.DualFinanceAirdrop]: DualAirdrop,
-      [Instructions.DualFinanceStakingOption]: StakingOption,
-      [Instructions.DualFinanceGso]: DualGso,
-      [Instructions.DualFinanceGsoWithdraw]: DualGsoWithdraw,
-      [Instructions.DualFinanceInitStrike]: InitStrike,
-      [Instructions.DualFinanceLiquidityStakingOption]: LiquidityStakingOption,
-      [Instructions.DualFinanceStakingOptionWithdraw]: DualWithdraw,
-      [Instructions.DualFinanceExerciseStakingOption]: DualExercise,
-      [Instructions.DualFinanceDelegate]: DualDelegate,
-      [Instructions.DualFinanceDelegateWithdraw]: DualVoteDepositWithdraw,
-      [Instructions.DualFinanceVoteDeposit]: DualVoteDeposit,
-      [Instructions.DaoVote]: DaoVote,
-      [Instructions.DistributionCloseVaults]: CloseVaults,
-      [Instructions.DistributionFillVaults]: FillVaults,
-      [Instructions.MeanCreateAccount]: MeanCreateAccount,
-      [Instructions.MeanFundAccount]: MeanFundAccount,
-      [Instructions.MeanWithdrawFromAccount]: MeanWithdrawFromAccount,
-      [Instructions.MeanCreateStream]: MeanCreateStream,
-      [Instructions.MeanTransferStream]: MeanTransferStream,
-      [Instructions.SquadsMeshRemoveMember]: MeshRemoveMember,
-      [Instructions.SquadsMeshAddMember]: MeshAddMember,
-      [Instructions.SquadsMeshChangeThresholdMember]: MeshChangeThresholdMember,
-      [Instructions.PythRecoverAccount]: PythRecoverAccount,
-      [Instructions.PythUpdatePoolAuthority]: PythUpdatePoolAuthority,
-      [Instructions.CreateSolendObligationAccount]: CreateObligationAccount,
-      [Instructions.InitSolendObligationAccount]: InitObligationAccount,
-      [Instructions.DepositReserveLiquidityAndObligationCollateral]: DepositReserveLiquidityAndObligationCollateral,
-      [Instructions.WithdrawObligationCollateralAndRedeemReserveLiquidity]: WithdrawObligationCollateralAndRedeemReserveLiquidity,
-      [Instructions.PsyFinanceMintAmericanOptions]: PsyFinanceMintAmericanOptions,
-      [Instructions.PsyFinanceBurnWriterForQuote]: PsyFinanceBurnWriterTokenForQuote,
-      [Instructions.PsyFinanceClaimUnderlyingPostExpiration]: PsyFinanceClaimUnderlyingPostExpiration,
-      [Instructions.PsyFinanceExerciseOption]: PsyFinanceExerciseOption,
-      [Instructions.SwitchboardFundOracle]: SwitchboardFundOracle,
-      [Instructions.WithdrawFromOracle]: WithdrawFromOracle,
-      [Instructions.RefreshSolendObligation]: RefreshObligation,
-      [Instructions.RefreshSolendReserve]: RefreshReserve,
       [Instructions.RealmConfig]: RealmConfig,
       [Instructions.CloseTokenAccount]: CloseTokenAccount,
       [Instructions.CloseMultipleTokenAccounts]: CloseMultipleTokenAccounts,
-      [Instructions.ChangeMakeDonation]: ChangeDonation,
       [Instructions.CreateTokenMetadata]: CreateTokenMetadata,
       [Instructions.UpdateTokenMetadata]: UpdateTokenMetadata,
-      [Instructions.StakeValidator]: StakeValidator,
-      [Instructions.SanctumDepositStake]: SanctumDepositStake,
-      [Instructions.SanctumWithdrawStake]: SanctumWithdrawStake,
-      [Instructions.DeactivateValidatorStake]: DeactivateValidatorStake,
       [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
       [Instructions.DelegateStake]: DelegateStake,
-      [Instructions.RemoveStakeLock]: RemoveLockup,
-      [Instructions.SplitStake]: SplitStake,
-      [Instructions.DifferValidatorStake]: null,
-      [Instructions.JoinDAO]: JoinDAO,
       [Instructions.RevokeGoverningTokens]: RevokeGoverningTokens,
       // [Instructions.SagaPreOrder]: SagaPreOrder,
       // [Instructions.DepositToMangoAccount]: MakeDepositToMangoAccount,

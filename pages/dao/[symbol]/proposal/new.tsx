@@ -79,6 +79,7 @@ import { InstructionDataWithHoldUpTime } from 'actions/createProposal'
 // import ConfigureGatewayPlugin from './components/instructions/GatewayPlugin/ConfigureGateway'
 import CreateTokenMetadata from './components/instructions/CreateTokenMetadata'
 import UpdateTokenMetadata from './components/instructions/UpdateTokenMetadata'
+import SetMintAuthority from './components/instructions/SetMintAuthroity'
 import classNames from 'classnames'
 // import TokenRegister from './components/instructions/Mango/MangoV4/TokenRegister'
 // import EditToken from './components/instructions/Mango/MangoV4/EditToken'
@@ -473,6 +474,7 @@ const New = () => {
       [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
       [Instructions.DelegateStake]: DelegateStake,
       [Instructions.RevokeGoverningTokens]: RevokeGoverningTokens,
+      [Instructions.SetMintAuthority]: SetMintAuthority,
       // [Instructions.SagaPreOrder]: SagaPreOrder,
       // [Instructions.DepositToMangoAccount]: MakeDepositToMangoAccount,
       // [Instructions.DepositToMangoAccountCsv]: MakeDepositToMangoAccountCsv,

@@ -296,7 +296,6 @@ export interface JoinDAOForm {
 
 export enum Instructions {
   Base64,
-  Burn,
   CloseTokenAccount,
   CloseMultipleTokenAccounts,
   CreateAssociatedTokenAccount,

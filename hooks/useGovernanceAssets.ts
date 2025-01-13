@@ -232,18 +232,6 @@ export default function useGovernanceAssets() {
       name: 'Execute Custom Instruction',
       packageId: PackageEnum.Common,
     },
-    [Instructions.ChangeMakeDonation]: {
-      name: 'Donation to Charity',
-      packageId: PackageEnum.Common,
-    },
-    [Instructions.Clawback]: {
-      name: 'Clawback',
-      isVisible:
-        canUseTokenTransferInstruction &&
-        currentPluginPk &&
-        VSR_PLUGIN_PKS.includes(currentPluginPk.toBase58()),
-      packageId: PackageEnum.VsrPlugin,
-    },
     [Instructions.CloseTokenAccount]: {
       name: 'Close token account',
       isVisible: canUseTransferInstruction,
@@ -263,18 +251,8 @@ export default function useGovernanceAssets() {
       isVisible: canUseAuthorityInstruction,
       packageId: PackageEnum.Common,
     },
-    [Instructions.DeactivateValidatorStake]: {
-      name: 'Deactivate validator stake',
-      packageId: PackageEnum.Common,
-    },
     [Instructions.DelegateStake]: {
       name: 'Delegate Stake Account',
-      packageId: PackageEnum.Common,
-    },
-    [Instructions.DifferValidatorStake]: {
-      name: 'Differ validator stake',
-      // Not to be used for now
-      isVisible: false,
       packageId: PackageEnum.Common,
     },
     [Instructions.Grant]: {
@@ -284,10 +262,6 @@ export default function useGovernanceAssets() {
         currentPluginPk &&
         VSR_PLUGIN_PKS.includes(currentPluginPk.toBase58()),
       packageId: PackageEnum.VsrPlugin,
-    },
-    [Instructions.JoinDAO]: {
-      name: 'Join a DAO',
-      packageId: PackageEnum.Common,
     },
     [Instructions.Mint]: {
       name: 'Mint Tokens',
@@ -311,10 +285,6 @@ export default function useGovernanceAssets() {
       isVisible: canUseAuthorityInstruction,
       packageId: PackageEnum.Common,
     },
-    [Instructions.StakeValidator]: {
-      name: 'Stake A Validator',
-      packageId: PackageEnum.Common,
-    },
     [Instructions.Transfer]: {
       name: 'Transfer Tokens',
       isVisible: canUseTokenTransferInstruction,
@@ -323,10 +293,6 @@ export default function useGovernanceAssets() {
     [Instructions.Burn]: {
       name: 'Burn Tokens',
       isVisible: canUseTokenTransferInstruction,
-      packageId: PackageEnum.Common,
-    },
-    [Instructions.TransferDomainName]: {
-      name: 'SNS Transfer Out Domain Name',
       packageId: PackageEnum.Common,
     },
     [Instructions.UpdateTokenMetadata]: {
@@ -353,52 +319,6 @@ export default function useGovernanceAssets() {
       ██   ██ ██    ██ ██   ██ ██          ██      ██ ██  ██ ██ ██   ██ ██  ██ ██ ██      ██
       ██████   ██████  ██   ██ ███████     ██      ██ ██   ████ ██   ██ ██   ████  ██████ ███████
     */
-
-    [Instructions.DualFinanceStakingOption]: {
-      name: 'Staking Option',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceGso]: {
-      name: 'Lockup Staking Option',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceLiquidityStakingOption]: {
-      name: 'Liquidity Staking Option',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceInitStrike]: {
-      name: 'Init Staking Option Strike',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceExerciseStakingOption]: {
-      name: 'Exercise Staking Option',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceGsoWithdraw]: {
-      name: 'Lockup Staking Option Withdraw',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceStakingOptionWithdraw]: {
-      name: 'Withdraw',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceAirdrop]: {
-      name: 'Airdrop',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
-    [Instructions.DualFinanceDelegate]: {
-      name: 'Delegate',
-      isVisible: canUseTransferInstruction,
-      packageId: PackageEnum.Dual,
-    },
 
     /*
       ███████  ██████  ██████  ███████ ███████ ██  ██████  ██   ██ ████████
@@ -650,14 +570,6 @@ export default function useGovernanceAssets() {
       ██         ██       ██    ██   ██
       ██         ██       ██    ██   ██
     */
-    [Instructions.PythRecoverAccount]: {
-      name: 'Recover Account',
-      packageId: PackageEnum.Pyth,
-    },
-    [Instructions.PythUpdatePoolAuthority]: {
-      name: 'Update Pool Authority',
-      packageId: PackageEnum.Pyth,
-    },
     /*
       ███████ ███████ ██████  ██    ██ ███    ███
       ██      ██      ██   ██ ██    ██ ████  ████
@@ -703,31 +615,6 @@ export default function useGovernanceAssets() {
       ███████  ██████  ███████ ███████ ██   ████ ██████
     // */
 
-    [Instructions.CreateSolendObligationAccount]: {
-      name: 'Create Obligation Account',
-      packageId: PackageEnum.Solend,
-    },
-    [Instructions.DepositReserveLiquidityAndObligationCollateral]: {
-      name: 'Deposit Funds',
-      packageId: PackageEnum.Solend,
-    },
-    [Instructions.InitSolendObligationAccount]: {
-      name: 'Init Obligation Account',
-      packageId: PackageEnum.Solend,
-    },
-    [Instructions.RefreshSolendObligation]: {
-      name: 'Refresh Obligation',
-      packageId: PackageEnum.Solend,
-    },
-    [Instructions.RefreshSolendReserve]: {
-      name: 'Refresh Reserve',
-      packageId: PackageEnum.Solend,
-    },
-    [Instructions.WithdrawObligationCollateralAndRedeemReserveLiquidity]: {
-      name: 'Withdraw Funds',
-      packageId: PackageEnum.Solend,
-    },
-
     /*
     ███████ ██    ██ ███    ███ ███    ███ ███████ ████████ ██████  ██    ██ 
     ██       ██  ██  ████  ████ ████  ████ ██         ██    ██   ██  ██  ██  
@@ -735,22 +622,6 @@ export default function useGovernanceAssets() {
          ██    ██    ██  ██  ██ ██  ██  ██ ██         ██    ██   ██    ██    
     ███████    ██    ██      ██ ██      ██ ███████    ██    ██   ██    ██    
     */
-    [Instructions.SymmetryCreateBasket]: {
-      name: 'Create Basket',
-      packageId: PackageEnum.Symmetry,
-    },
-    [Instructions.SymmetryEditBasket]: {
-      name: 'Edit Basket',
-      packageId: PackageEnum.Symmetry,
-    },
-    [Instructions.SymmetryDeposit]: {
-      name: 'Deposit into Basket',
-      packageId: PackageEnum.Symmetry,
-    },
-    [Instructions.SymmetryWithdraw]: {
-      name: 'Withdraw from Basket',
-      packageId: PackageEnum.Symmetry,
-    },
     /*
     ███████  ██████  ██    ██  █████  ██████  ███████ 
     ██      ██    ██ ██    ██ ██   ██ ██   ██ ██      
@@ -758,18 +629,6 @@ export default function useGovernanceAssets() {
          ██ ██ ▄▄ ██ ██    ██ ██   ██ ██   ██      ██ 
     ███████  ██████   ██████  ██   ██ ██████  ███████ 
     */
-    [Instructions.SquadsMeshAddMember]: {
-      name: 'Mesh Add Member',
-      packageId: PackageEnum.Squads,
-    },
-    [Instructions.SquadsMeshChangeThresholdMember]: {
-      name: 'Mesh Change Threshold',
-      packageId: PackageEnum.Squads,
-    },
-    [Instructions.SquadsMeshRemoveMember]: {
-      name: 'Mesh Remove Member',
-      packageId: PackageEnum.Squads,
-    },
     /*
       ███████ ██     ██ ██ ████████  ██████ ██   ██ ██████   ██████   █████  ██████  ██████
       ██      ██     ██ ██    ██    ██      ██   ██ ██   ██ ██    ██ ██   ██ ██   ██ ██   ██

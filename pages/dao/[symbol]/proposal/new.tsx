@@ -61,18 +61,14 @@ import VoteBySwitch from './components/VoteBySwitch'
 // import SwitchboardFundOracle from './components/instructions/Switchboard/FundOracle'
 // import WithdrawFromOracle from './components/instructions/Switchboard/WithdrawFromOracle'
 import StakeValidator from './components/instructions/Validators/StakeValidator'
+import SanctumDepositStake from './components/instructions/Validators/SanctumDepositStake'
+import SanctumWithdrawStake from './components/instructions/Validators/SanctumWithdrawStake'
 import DeactivateValidatorStake from './components/instructions/Validators/DeactivateStake'
 import WithdrawValidatorStake from './components/instructions/Validators/WithdrawStake'
 import DelegateStake from './components/instructions/Validators/DelegateStake'
 // import SplitStake from './components/instructions/Validators/SplitStake'
 import useCreateProposal from '@hooks/useCreateProposal'
-// import MakeInitMarketParams from './components/instructions/Foresight/MakeInitMarketParams'
-// import MakeInitMarketListParams from './components/instructions/Foresight/MakeInitMarketListParams'
-// import MakeInitCategoryParams from './components/instructions/Foresight/MakeInitCategoryParams'
-// import MakeResolveMarketParams from './components/instructions/Foresight/MakeResolveMarketParams'
-// import MakeAddMarketListToCategoryParams from './components/instructions/Foresight/MakeAddMarketListToCategoryParams'
 import RealmConfig from './components/instructions/RealmConfig'
-// import MakeSetMarketMetadataParams from './components/instructions/Foresight/MakeSetMarketMetadataParams'
 import CloseTokenAccount from './components/instructions/CloseTokenAccount'
 import CloseMultipleTokenAccounts from './components/instructions/CloseMultipleTokenAccounts'
 import { InstructionDataWithHoldUpTime } from 'actions/createProposal'
@@ -140,8 +136,20 @@ import { usePrevious } from '@hooks/usePrevious'
 // import DualGso from './components/instructions/Dual/DualGso'
 // import DualGsoWithdraw from './components/instructions/Dual/DualGsoWithdraw'
 import MultiChoiceForm from '../../../../components/MultiChoiceForm'
-// import CloseVaults from './components/instructions/DistrubtionProgram/CloseVaults'
-// import FillVaults from './components/instructions/DistrubtionProgram/FillVaults'
+import CloseVaults from './components/instructions/DistrubtionProgram/CloseVaults'
+import FillVaults from './components/instructions/DistrubtionProgram/FillVaults'
+import MeshRemoveMember from './components/instructions/Squads/MeshRemoveMember'
+import MeshAddMember from './components/instructions/Squads/MeshAddMember'
+import MeshChangeThresholdMember from './components/instructions/Squads/MeshChangeThresholdMember'
+import PythRecoverAccount from './components/instructions/Pyth/PythRecoverAccount'
+import { useVoteByCouncilToggle } from '@hooks/useVoteByCouncilToggle'
+import BurnTokens from './components/instructions/BurnTokens'
+import RemoveLockup from './components/instructions/Validators/removeLockup'
+import SymmetryCreateBasket from './components/instructions/Symmetry/SymmetryCreateBasket'
+import SymmetryEditBasket from './components/instructions/Symmetry/SymmetryEditBasket'
+import SymmetryDeposit from './components/instructions/Symmetry/SymmetryDeposit'
+import SymmetryWithdraw from './components/instructions/Symmetry/SymmetryWithdraw'
+import PythUpdatePoolAuthority from './components/instructions/Pyth/PythUpdatePoolAuthority'
 
 const TITLE_LENGTH_LIMIT = 130
 // the true length limit is either at the tx size level, and maybe also the total account size level (I can't remember)
@@ -202,7 +210,11 @@ const New = () => {
     title: typeof router.query['t'] === 'string' ? router.query['t'] : '',
     description: '',
   })
-  const { voteByCouncil, shouldShowVoteByCouncilToggle, setVoteByCouncil } = useVoteByCouncilToggle();
+  const {
+    voteByCouncil,
+    shouldShowVoteByCouncilToggle,
+    setVoteByCouncil,
+  } = useVoteByCouncilToggle()
   const [multiChoiceForm, setMultiChoiceForm] = useState<{
     governance: PublicKey | undefined
     options: string[]
@@ -487,43 +499,42 @@ const New = () => {
       [Instructions.Grant]: Grant,
       [Instructions.Clawback]: Clawback,
       [Instructions.CreateAssociatedTokenAccount]: CreateAssociatedTokenAccount,
-      // [Instructions.DualFinanceAirdrop]: DualAirdrop,
-      // [Instructions.DualFinanceStakingOption]: StakingOption,
-      // [Instructions.DualFinanceGso]: DualGso,
-      // [Instructions.DualFinanceGsoWithdraw]: DualGsoWithdraw,
-      // [Instructions.DualFinanceInitStrike]: InitStrike,
-      // [Instructions.DualFinanceLiquidityStakingOption]: LiquidityStakingOption,
-      // [Instructions.DualFinanceStakingOptionWithdraw]: DualWithdraw,
-      // [Instructions.DualFinanceExerciseStakingOption]: DualExercise,
-      // [Instructions.DualFinanceDelegate]: DualDelegate,
-      // [Instructions.DualFinanceDelegateWithdraw]: DualVoteDepositWithdraw,
-      // [Instructions.DualFinanceVoteDeposit]: DualVoteDeposit,
-      // [Instructions.DualFinanceVote]: DualVote,
-      // [Instructions.DistributionCloseVaults]: CloseVaults,
-      // [Instructions.DistributionFillVaults]: FillVaults,
-      // [Instructions.MeanCreateAccount]: MeanCreateAccount,
-      // [Instructions.MeanFundAccount]: MeanFundAccount,
-      // [Instructions.MeanWithdrawFromAccount]: MeanWithdrawFromAccount,
-      // [Instructions.MeanCreateStream]: MeanCreateStream,
-      // [Instructions.MeanTransferStream]: MeanTransferStream,
-      // [Instructions.CreateSolendObligationAccount]: CreateObligationAccount,
-      // [Instructions.InitSolendObligationAccount]: InitObligationAccount,
-      // [Instructions.DepositReserveLiquidityAndObligationCollateral]: DepositReserveLiquidityAndObligationCollateral,
-      // [Instructions.WithdrawObligationCollateralAndRedeemReserveLiquidity]: WithdrawObligationCollateralAndRedeemReserveLiquidity,
-      // [Instructions.PsyFinanceMintAmericanOptions]: PsyFinanceMintAmericanOptions,
-      // [Instructions.PsyFinanceBurnWriterForQuote]: PsyFinanceBurnWriterTokenForQuote,
-      // [Instructions.PsyFinanceClaimUnderlyingPostExpiration]: PsyFinanceClaimUnderlyingPostExpiration,
-      // [Instructions.PsyFinanceExerciseOption]: PsyFinanceExerciseOption,
-      // [Instructions.SwitchboardFundOracle]: SwitchboardFundOracle,
-      // [Instructions.WithdrawFromOracle]: WithdrawFromOracle,
-      // [Instructions.RefreshSolendObligation]: RefreshObligation,
-      // [Instructions.RefreshSolendReserve]: RefreshReserve,
-      // [Instructions.ForesightInitMarket]: MakeInitMarketParams,
-      // [Instructions.ForesightInitMarketList]: MakeInitMarketListParams,
-      // [Instructions.ForesightInitCategory]: MakeInitCategoryParams,
-      // [Instructions.ForesightResolveMarket]: MakeResolveMarketParams,
-      // [Instructions.ForesightAddMarketListToCategory]: MakeAddMarketListToCategoryParams,
-      // [Instructions.ForesightSetMarketMetadata]: MakeSetMarketMetadataParams,
+      [Instructions.DualFinanceAirdrop]: DualAirdrop,
+      [Instructions.DualFinanceStakingOption]: StakingOption,
+      [Instructions.DualFinanceGso]: DualGso,
+      [Instructions.DualFinanceGsoWithdraw]: DualGsoWithdraw,
+      [Instructions.DualFinanceInitStrike]: InitStrike,
+      [Instructions.DualFinanceLiquidityStakingOption]: LiquidityStakingOption,
+      [Instructions.DualFinanceStakingOptionWithdraw]: DualWithdraw,
+      [Instructions.DualFinanceExerciseStakingOption]: DualExercise,
+      [Instructions.DualFinanceDelegate]: DualDelegate,
+      [Instructions.DualFinanceDelegateWithdraw]: DualVoteDepositWithdraw,
+      [Instructions.DualFinanceVoteDeposit]: DualVoteDeposit,
+      [Instructions.DaoVote]: DaoVote,
+      [Instructions.DistributionCloseVaults]: CloseVaults,
+      [Instructions.DistributionFillVaults]: FillVaults,
+      [Instructions.MeanCreateAccount]: MeanCreateAccount,
+      [Instructions.MeanFundAccount]: MeanFundAccount,
+      [Instructions.MeanWithdrawFromAccount]: MeanWithdrawFromAccount,
+      [Instructions.MeanCreateStream]: MeanCreateStream,
+      [Instructions.MeanTransferStream]: MeanTransferStream,
+      [Instructions.SquadsMeshRemoveMember]: MeshRemoveMember,
+      [Instructions.SquadsMeshAddMember]: MeshAddMember,
+      [Instructions.SquadsMeshChangeThresholdMember]: MeshChangeThresholdMember,
+      [Instructions.PythRecoverAccount]: PythRecoverAccount,
+      [Instructions.PythUpdatePoolAuthority]: PythUpdatePoolAuthority,
+      [Instructions.CreateSolendObligationAccount]: CreateObligationAccount,
+      [Instructions.InitSolendObligationAccount]: InitObligationAccount,
+      [Instructions.DepositReserveLiquidityAndObligationCollateral]: DepositReserveLiquidityAndObligationCollateral,
+      [Instructions.WithdrawObligationCollateralAndRedeemReserveLiquidity]: WithdrawObligationCollateralAndRedeemReserveLiquidity,
+      [Instructions.PsyFinanceMintAmericanOptions]: PsyFinanceMintAmericanOptions,
+      [Instructions.PsyFinanceBurnWriterForQuote]: PsyFinanceBurnWriterTokenForQuote,
+      [Instructions.PsyFinanceClaimUnderlyingPostExpiration]: PsyFinanceClaimUnderlyingPostExpiration,
+      [Instructions.PsyFinanceExerciseOption]: PsyFinanceExerciseOption,
+      [Instructions.SwitchboardFundOracle]: SwitchboardFundOracle,
+      [Instructions.WithdrawFromOracle]: WithdrawFromOracle,
+      [Instructions.RefreshSolendObligation]: RefreshObligation,
+      [Instructions.RefreshSolendReserve]: RefreshReserve,
       [Instructions.RealmConfig]: RealmConfig,
       // [Instructions.CreateNftPluginRegistrar]: CreateNftPluginRegistrar,
       // [Instructions.CreateNftPluginMaxVoterWeight]: CreateNftPluginMaxVoterWeightRecord,
@@ -538,10 +549,13 @@ const New = () => {
       [Instructions.CreateTokenMetadata]: CreateTokenMetadata,
       [Instructions.UpdateTokenMetadata]: UpdateTokenMetadata,
       [Instructions.StakeValidator]: StakeValidator,
+      [Instructions.SanctumDepositStake]: SanctumDepositStake,
+      [Instructions.SanctumWithdrawStake]: SanctumWithdrawStake,
       [Instructions.DeactivateValidatorStake]: DeactivateValidatorStake,
       [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
       [Instructions.DelegateStake]: DelegateStake,
-      // [Instructions.SplitStake]: SplitStake,
+      [Instructions.RemoveStakeLock]: RemoveLockup,
+      [Instructions.SplitStake]: SplitStake,
       [Instructions.DifferValidatorStake]: null,
       // [Instructions.TransferDomainName]: TransferDomainName,
       // [Instructions.SerumInitUser]: InitUser,
@@ -593,65 +607,11 @@ const New = () => {
       // [Instructions.AddServiceToDID]: AddServiceToDID,
       // [Instructions.RemoveServiceFromDID]: RemoveServiceFromDID,
       [Instructions.RevokeGoverningTokens]: RevokeGoverningTokens,
-      // [Instructions.SagaPreOrder]: SagaPreOrder,
-      // [Instructions.DepositToMangoAccount]: MakeDepositToMangoAccount,
-      // [Instructions.DepositToMangoAccountCsv]: MakeDepositToMangoAccountCsv,
-      // [Instructions.StakeValidator]: StakeValidator,
-      // [Instructions.DeactivateValidatorStake]: DeactivateValidatorStake,
-      // [Instructions.WithdrawValidatorStake]: WithdrawValidatorStake,
-      // [Instructions.DifferValidatorStake]: null,
-      // [Instructions.TransferDomainName]: TransferDomainName,
-      // [Instructions.EverlendDeposit]: DepositForm,
-      // [Instructions.EverlendWithdraw]: WithdrawForm,
-      // [Instructions.SerumInitUser]: InitUser,
-      // [Instructions.SerumGrantLockedSRM]: {
-      //   componentBuilderFunction: ({ index, governance }) => (
-      //     <GrantForm
-      //       index={index}
-      //       governance={governance}
-      //       isLocked={true}
-      //       isMsrm={false}
-      //     />
-      //   ),
-      // },
-      // [Instructions.SerumGrantLockedMSRM]: {
-      //   componentBuilderFunction: ({ index, governance }) => (
-      //     <GrantForm
-      //       index={index}
-      //       governance={governance}
-      //       isLocked={true}
-      //       isMsrm={true}
-      //     />
-      //   ),
-      // },
-      // [Instructions.SerumGrantVestSRM]: {
-      //   componentBuilderFunction: ({ index, governance }) => (
-      //     <GrantForm
-      //       index={index}
-      //       governance={governance}
-      //       isLocked={false}
-      //       isMsrm={false}
-      //     />
-      //   ),
-      // },
-      // [Instructions.SerumGrantVestMSRM]: {
-      //   componentBuilderFunction: ({ index, governance }) => (
-      //     <GrantForm
-      //       index={index}
-      //       governance={governance}
-      //       isLocked={false}
-      //       isMsrm={true}
-      //     />
-      //   ),
-      // },
-      // [Instructions.SerumUpdateGovConfigParams]: UpdateConfigParams,
-      // [Instructions.SerumUpdateGovConfigAuthority]: UpdateConfigAuthority,
-      // [Instructions.JoinDAO]: JoinDAO,
-      // [Instructions.ClaimMangoTokens]: ClaimMangoTokens,
-      // [Instructions.AddKeyToDID]: AddKeyToDID,
-      // [Instructions.RemoveKeyFromDID]: RemoveKeyFromDID,
-      // [Instructions.AddServiceToDID]: AddServiceToDID,
-      // [Instructions.RemoveServiceFromDID]: RemoveServiceFromDID,
+      [Instructions.SetMintAuthority]: SetMintAuthority,
+      [Instructions.SymmetryCreateBasket]: SymmetryCreateBasket,
+      [Instructions.SymmetryEditBasket]: SymmetryEditBasket,
+      [Instructions.SymmetryDeposit]: SymmetryDeposit,
+      [Instructions.SymmetryWithdraw]: SymmetryWithdraw,
     }),
     [governance?.pubkey?.toBase58()]
   )
@@ -777,14 +737,14 @@ const New = () => {
                 })}
               />
             </div>
-              {shouldShowVoteByCouncilToggle && (
-                  <VoteBySwitch
-                      checked={voteByCouncil}
-                      onChange={() => {
-                          setVoteByCouncil(!voteByCouncil)
-                      }}
-                  ></VoteBySwitch>
-              )}
+            {shouldShowVoteByCouncilToggle && (
+              <VoteBySwitch
+                checked={voteByCouncil}
+                onChange={() => {
+                  setVoteByCouncil(!voteByCouncil)
+                }}
+              ></VoteBySwitch>
+            )}
             <div className="max-w-lg w-full mb-4 flex flex-wrap gap-2 justify-between items-end">
               <div className="flex grow basis-0">
                 <ProposalTypeRadioButton

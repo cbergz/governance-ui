@@ -6,10 +6,9 @@ import { getAllSplGovernanceProgramIds } from './tools/realms'
 import { withSentry } from '@sentry/nextjs'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const conn = new Connection(
-    'https://wild-empty-sunset.solana-mainnet.quiknode.pro/58b024b787bbbe155d39de4ae5e789ac63ed1982/',
-    'recent'
-  )
+  if (!process.env.MAINNET_RPC)
+    return res.status(500).json('MAINNET_RPC not provided in env')
+  const conn = new Connection(process.env.MAINNET_RPC, 'recent')
 
   console.log('fetching spl-gov instances...')
   // Get all realms

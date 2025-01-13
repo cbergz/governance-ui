@@ -4,6 +4,7 @@ import {
   I80F48,
   OPENBOOK_PROGRAM_ID,
   RouteInfo,
+  USDC_MINT,
   toNative,
   toUiDecimals,
   toUiDecimalsForQuote,
@@ -14,11 +15,8 @@ import {
   LISTING_PRESETS_KEY,
   getPresetWithAdjustedNetBorrows,
   getPresetWithAdjustedDepositLimit,
-  getPythPresets,
-  getSwitchBoardPresets,
 } from '@blockworks-foundation/mango-v4-settings/lib/helpers/listingTools'
 import { AnchorProvider, BN, Program, Wallet } from '@coral-xyz/anchor'
-import { MAINNET_USDC_MINT } from '@foresight-tmp/foresight-sdk/dist/consts'
 import { Market } from '@project-serum/serum'
 import { PythHttpClient, parsePriceData } from '@pythnetwork/client'
 import {
@@ -220,34 +218,35 @@ type ProposedListingPresets = {
 }
 
 export const getFormattedListingPresets = (
-  isPythOracle: boolean,
   uiDeposits?: number,
   decimals?: number,
   tokenPrice?: number
 ) => {
-  const PRESETS = !isPythOracle
-    ? getSwitchBoardPresets(LISTING_PRESETS)
-    : getPythPresets(LISTING_PRESETS)
+  const PRESETS = LISTING_PRESETS
 
   const PROPOSED_LISTING_PRESETS: ProposedListingPresets = Object.keys(
     PRESETS
   ).reduce((accumulator, key) => {
     let adjustedPreset = PRESETS[key]
-    if (uiDeposits && tokenPrice) {
-      adjustedPreset = getPresetWithAdjustedNetBorrows(
-        PRESETS[key],
-        uiDeposits,
-        tokenPrice,
-        toUiDecimals(PRESETS[key].netBorrowLimitPerWindowQuote, 6)
-      )
-    }
+    try {
+      if (uiDeposits && tokenPrice) {
+        adjustedPreset = getPresetWithAdjustedNetBorrows(
+          PRESETS[key],
+          uiDeposits,
+          tokenPrice,
+          toUiDecimals(PRESETS[key].netBorrowLimitPerWindowQuote, 6)
+        )
+      }
 
-    if (decimals && tokenPrice) {
-      adjustedPreset = getPresetWithAdjustedDepositLimit(
-        adjustedPreset,
-        tokenPrice,
-        decimals
-      )
+      if (decimals && tokenPrice) {
+        adjustedPreset = getPresetWithAdjustedDepositLimit(
+          adjustedPreset,
+          tokenPrice,
+          decimals
+        )
+      }
+    } catch (e) {
+      console.log(e)
     }
     accumulator[key] = transformPresetToProposed(adjustedPreset)
     return accumulator
@@ -276,7 +275,7 @@ const fetchJupiterRoutes = async (
 
       const jupiterSwapBaseUrl =
         process.env.NEXT_PUBLIC_JUPTER_SWAP_API_ENDPOINT ||
-        'https://public.jupiterapi.com'
+        'https://quote-api.jup.ag/v6'
       const response = await fetch(
         `${jupiterSwapBaseUrl}/quote?${paramsString}`
       )
@@ -294,78 +293,73 @@ const fetchJupiterRoutes = async (
   }
 }
 
-export const getSuggestedCoinPresetInfo = async (
-  outputMint: string,
-  hasPythOracle: boolean
-) => {
+export const getSuggestedCoinPresetInfo = async (outputMint: string) => {
   try {
-    const PRESETS = !hasPythOracle
-      ? getSwitchBoardPresets(LISTING_PRESETS)
-      : getPythPresets(LISTING_PRESETS)
+    const PRESETS = LISTING_PRESETS
 
     const swaps = await Promise.all([
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(250000, 6).toNumber()
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(100000, 6).toNumber()
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(20000, 6).toNumber()
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(10000, 6).toNumber()
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(5000, 6).toNumber()
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(1000, 6).toNumber()
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(250000, 6).toNumber(),
         'ExactOut'
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(100000, 6).toNumber(),
         'ExactOut'
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(20000, 6).toNumber(),
         'ExactOut'
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(20000, 6).toNumber(),
         'ExactOut'
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(5000, 6).toNumber(),
         'ExactOut'
       ),
       fetchJupiterRoutes(
-        MAINNET_USDC_MINT.toBase58(),
+        USDC_MINT.toBase58(),
         outputMint,
         toNative(1000, 6).toNumber(),
         'ExactOut'
@@ -466,7 +460,7 @@ const isSwitchboardOracle = async (
   const feed = feeds.find((x) => x.publicKey.equals(feedPk))
 
   return feed
-    ? `https://app.switchboard.xyz/solana/mainnet-beta/feed/${feedPk.toBase58()}`
+    ? `https://app.switchboard.xyz/solana/mainnet/feed/${feedPk.toBase58()}`
     : ''
 }
 
@@ -650,7 +644,7 @@ export const getFormattedBankValues = (group: Group, bank: Bank) => {
     vault: bank.vault.toBase58(),
     oracle: bank.oracle.toBase58(),
     fallbackOracle: bank.fallbackOracle.toBase58(),
-    stablePrice: group.toUiPrice(
+    stablePrice: toUiDecimals(
       I80F48.fromNumber(bank.stablePriceModel.stablePrice),
       bank.mintDecimals
     ),
@@ -664,9 +658,9 @@ export const getFormattedBankValues = (group: Group, bank: Bank) => {
     stablePriceGrowthLimitsStable: (
       100 * bank.stablePriceModel.stableGrowthLimit
     ).toFixed(2),
-    loanFeeRate: (10000 * bank.loanFeeRate.toNumber()).toFixed(2),
+    loanFeeRate: (100 * bank.loanFeeRate.toNumber()).toFixed(2),
     loanOriginationFeeRate: (
-      10000 * bank.loanOriginationFeeRate.toNumber()
+      100 * bank.loanOriginationFeeRate.toNumber()
     ).toFixed(2),
     collectedFeesNative: toUiDecimals(
       bank.collectedFeesNative.toNumber(),

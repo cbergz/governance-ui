@@ -329,7 +329,6 @@ export function AppContents(props: Props) {
             <TransactionLoader></TransactionLoader>
             <NftVotingCountingModal />
             <PageBodyContainer>{props.children}</PageBodyContainer>
-            <TermsPopupModal />
           </GatewayProvider>
         </ThemeProvider>
       </ErrorBoundary>

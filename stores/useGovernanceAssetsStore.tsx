@@ -792,16 +792,16 @@ const loadGovernedTokenAccounts = async (
   governancesArray: GovernanceProgramAccountWithNativeTreasuryAddress[]
 ): Promise<AssetAccount[]> => {
   console.log('loadGovernedTokenAccounts has been called')
-  const auxiliaryTokenAccounts: typeof AUXILIARY_TOKEN_ACCOUNTS[keyof typeof AUXILIARY_TOKEN_ACCOUNTS] = AUXILIARY_TOKEN_ACCOUNTS[
-    realm.account.name
-  ]?.length
-    ? AUXILIARY_TOKEN_ACCOUNTS[realm.account.name]
-    : []
+  // const auxiliaryTokenAccounts: typeof AUXILIARY_TOKEN_ACCOUNTS[keyof typeof AUXILIARY_TOKEN_ACCOUNTS] = AUXILIARY_TOKEN_ACCOUNTS[
+  //   realm.account.name
+  // ]?.length
+  //   ? AUXILIARY_TOKEN_ACCOUNTS[realm.account.name]
+  //   : []
 
   const tokenAccountsOwnedByGovernances = uniquePublicKey([
     ...governancesArray.map((x) => x.nativeTreasuryAddress),
     ...governancesArray.map((g) => g.pubkey),
-    ...auxiliaryTokenAccounts.map((x) => new PublicKey(x.owner)),
+    // ...auxiliaryTokenAccounts.map((x) => new PublicKey(x.owner)),
   ])
 
   const tokenAccountsInfo = (

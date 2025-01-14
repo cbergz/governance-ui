@@ -42,7 +42,7 @@ import { SYMMETRY_V2_INSTRUCTIONS } from './programs/symmetryV2'
  * Default governance program id instance
  */
 export const DEFAULT_GOVERNANCE_PROGRAM_ID =
-  'GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw'
+  'J9uWvULFL47gtCPvgR3oN7W357iehn5WF2Vn9MJvcSxz'
 export const DEFAULT_GOVERNANCE_PROGRAM_VERSION = 3
 
 export const MANGO_DAO_TREASURY = '9RGoboEjmaAjSCXsKi6p6zJucnwF3Eg5NUN9jPS6ziL3'

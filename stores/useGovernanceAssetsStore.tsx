@@ -393,11 +393,8 @@ const getTokenAssetAccounts = async (
       if (account) {
         accounts.push(account)
       }
-    } else if (
-      [...Object.values(AUXILIARY_TOKEN_ACCOUNTS).flatMap((x) => x)].find((x) =>
-        x.accounts.includes(tokenAccount.publicKey.toBase58())
-      )
-    ) {
+    }
+    {
       const mint = mintAccounts.find(
         (x) => x.publicKey.toBase58() === tokenAccount.account.mint.toBase58()
       )

@@ -64,9 +64,6 @@ export default function useGovernanceAssets() {
   const assetAccounts = useGovernanceAssetsStore((s) =>
     s.assetAccounts.filter((x) => x.type !== AccountType.AUXILIARY_TOKEN)
   )
-  const auxiliaryTokenAccounts = useGovernanceAssetsStore(
-    (s) => s.assetAccounts
-  ).filter((x) => x.type === AccountType.AUXILIARY_TOKEN)
   const currentPluginPk = config?.account.communityTokenConfig.voterWeightAddin
   const governancesQuery = useRealmGovernancesQuery()
   const governancesArray = useMemo(() => governancesQuery.data ?? [], [
@@ -280,7 +277,6 @@ export default function useGovernanceAssets() {
 
   return {
     assetAccounts,
-    auxiliaryTokenAccounts,
     availableInstructions,
     availablePackages,
     canMintRealmCouncilToken,

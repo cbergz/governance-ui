@@ -6,7 +6,7 @@ import { createContext, useEffect, useState } from 'react';
 const DEVNET_RPC_ENDPOINT =
   process.env.DEVNET_RPC || 'https://api.dao.devnet.solana.com/';
 const MAINNET_RPC_ENDPOINT =
-  process.env.MAINNET_RPC || 'https://mainnet.helius-rpc.com/?api-key=09efbe04-3da6-4492-aa39-84a7a3e27016';
+  process.env.MAINNET_RPC || 'https://sly-patient-waterfall.solana-mainnet.quiknode.pro/bceccc776283213e297966f41ab4fae12c966c7d';
 const TESTNET_RPC_ENDPOINT = 'http://127.0.0.1:8899';
 
 export enum ClusterType {

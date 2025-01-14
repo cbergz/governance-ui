@@ -52,14 +52,6 @@ import group from '@utils/group'
 import { getFilteredProgramAccounts } from '@utils/helpers'
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes'
 
-const additionalPossibleMintAccounts = {
-  Mango: [
-    new PublicKey('EGk8Gw7Z484mzAKb7GwCcqrZd4KwwsyU2Dv9woY6uDQu'),
-    new PublicKey('8gjzxiqcU87cvRc7hFiUJgxqLSV7AQnSttfWC5fD9aim'),
-    new PublicKey('G1Yc5696GcfL28uAWG6iCaKJwZd8sQzwPJTc2UacsjHN'),
-    new PublicKey('oW7juZxrhaGvWw5giRp3P3qTHEZpg2t8n8aXTCpBjNK'),
-  ],
-}
 const tokenAccountOwnerOffset = 32
 const programAccountOwnerOffset = 13
 
@@ -152,11 +144,6 @@ const useGovernanceAssetsStore = create<GovernanceAssetsStore>((set, _get) => ({
       realm.account.config.councilMint,
     ].filter((x) => typeof x !== 'undefined') as PublicKey[]
 
-    const additionalMintAccounts =
-      additionalPossibleMintAccounts[realm.account.name]
-    if (additionalMintAccounts) {
-      possibleMintAccountPks.push(...additionalMintAccounts)
-    }
     // 1 - Load token accounts behind any type of governance
     const governedTokenAccounts = await loadGovernedTokenAccounts(
       connection,
@@ -935,11 +922,11 @@ const getAccountsForGovernances = async (
     realm.account.config.councilMint,
   ].filter((x) => typeof x !== 'undefined') as PublicKey[]
 
-  const additionalMintAccounts =
-    additionalPossibleMintAccounts[realm.account.name]
-  if (additionalMintAccounts) {
-    possibleMintAccountPks.push(...additionalMintAccounts)
-  }
+  // const additionalMintAccounts =
+  //   additionalPossibleMintAccounts[realm.account.name]
+  // if (additionalMintAccounts) {
+  //   possibleMintAccountPks.push(...additionalMintAccounts)
+  // }
   // 1 - Load accounts related to program governances
   // 2 - Load token accounts behind any type of governance
   // 3 - Load accounts related to mint

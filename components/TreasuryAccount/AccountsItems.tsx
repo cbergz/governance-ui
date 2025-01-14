@@ -6,11 +6,9 @@ import AccountItem from './AccountItem'
 const AccountsItems = () => {
   const {
     governedTokenAccountsWithoutNfts,
-    auxiliaryTokenAccounts,
   } = useGovernanceAssets()
   const accounts = [
     ...governedTokenAccountsWithoutNfts,
-    ...auxiliaryTokenAccounts,
   ]
   const accountsSorted = accounts
     .sort((a, b) => {

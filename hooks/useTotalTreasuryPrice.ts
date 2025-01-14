@@ -12,12 +12,10 @@ export function useTotalTreasuryPrice() {
   const {
     governedTokenAccountsWithoutNfts,
     assetAccounts,
-    auxiliaryTokenAccounts,
   } = useGovernanceAssets()
 
   const mintsToFetch = [
     ...governedTokenAccountsWithoutNfts,
-    ...auxiliaryTokenAccounts,
   ]
     .filter((x) => typeof x.extensions.mint !== 'undefined')
     .map((x) => x.extensions.mint!.publicKey)
@@ -33,7 +31,6 @@ export function useTotalTreasuryPrice() {
 
   const totalTokensPrice = [
     ...governedTokenAccountsWithoutNfts,
-    ...auxiliaryTokenAccounts,
   ]
     .filter((x) => typeof x.extensions.mint !== 'undefined')
     .map((x) => {

@@ -9,8 +9,8 @@ const AccountsView = ({
   getYesNoString,
   auxiliaryMode = false,
 }) => {
-  const { assetAccounts, auxiliaryTokenAccounts } = useGovernanceAssets()
-  const accounts = auxiliaryMode ? auxiliaryTokenAccounts : assetAccounts
+  const { assetAccounts } = useGovernanceAssets()
+  const accounts = assetAccounts
   return (
     <div className="space-y-3">
       {accounts

@@ -78,7 +78,6 @@ const SolendDeposit = ({
   const tokenInfo = tokenPriceService.getTokenInfo(handledMint)
   const {
     governedTokenAccountsWithoutNfts,
-    auxiliaryTokenAccounts,
     canUseTransferInstruction,
   } = useGovernanceAssets()
 
@@ -139,7 +138,6 @@ const SolendDeposit = ({
     const getSlndCTokens = async () => {
       const accounts = [
         ...governedTokenAccountsWithoutNfts,
-        ...auxiliaryTokenAccounts,
       ]
 
       const relevantAccs = accounts

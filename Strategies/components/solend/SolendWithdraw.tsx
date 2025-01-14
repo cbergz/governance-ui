@@ -56,7 +56,6 @@ const SolendWithdraw = ({
 }) => {
   const {
     governedTokenAccountsWithoutNfts,
-    auxiliaryTokenAccounts,
     canUseTransferInstruction,
   } = useGovernanceAssets()
   const router = useRouter()
@@ -121,7 +120,6 @@ const SolendWithdraw = ({
     const getSlndCTokens = async () => {
       const accounts = [
         ...governedTokenAccountsWithoutNfts,
-        ...auxiliaryTokenAccounts,
       ]
 
       const relevantAccs = accounts

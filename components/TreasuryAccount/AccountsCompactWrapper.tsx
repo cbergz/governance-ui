@@ -12,11 +12,9 @@ import Loading from '@components/Loading'
 const AccountsCompactWrapper = () => {
   const {
     governedTokenAccountsWithoutNfts,
-    auxiliaryTokenAccounts,
   } = useGovernanceAssets()
   const accounts = [
     ...governedTokenAccountsWithoutNfts,
-    ...auxiliaryTokenAccounts,
   ]
   const { symbol } = useRealm()
   const { fmtUrlWithCluster } = useQueryContext()

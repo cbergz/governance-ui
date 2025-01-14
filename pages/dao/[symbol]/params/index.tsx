@@ -44,7 +44,6 @@ const Params = () => {
   const {
     canUseAuthorityInstruction,
     assetAccounts,
-    auxiliaryTokenAccounts,
   } = useGovernanceAssets()
   const governancesArray = useRealmGovernancesQuery().data
   const mintGovernancesWithMintInfo = assetAccounts.filter((x) => {
@@ -355,18 +354,6 @@ const Params = () => {
                 </div>
               ) : null}
             </div>
-            {auxiliaryTokenAccounts.length !== 0 && (
-              <div className="gap-4 p-6 border rounded-md border-fgd-4">
-                <div className="max-w-lg">
-                  <h2 className="flex items-center">Auxiliary Accounts </h2>
-                  <AccountsView
-                    activeGovernance={{}}
-                    getYesNoString={getYesNoString}
-                    auxiliaryMode={true}
-                  />
-                </div>
-              </div>
-            )}
           </>
         ) : (
           <div className="w-full h-48 rounded-lg animate-pulse bg-bkg-3" />

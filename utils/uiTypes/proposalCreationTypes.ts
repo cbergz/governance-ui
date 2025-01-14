@@ -13,20 +13,6 @@ import * as PaymentStreaming from '@mean-dao/payment-streaming'
 // Alphabetical order
 export enum PackageEnum {
   Common,
-  Distribution,
-  Dual,
-  GatewayPlugin,
-  Identity,
-  MangoMarketV4,
-  MeanFinance,
-  NftPlugin,
-  PsyFinance,
-  Pyth,
-  Serum,
-  Solend,
-  Symmetry,
-  Squads,
-  Switchboard,
   VsrPlugin,
 }
 

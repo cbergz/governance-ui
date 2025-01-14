@@ -37,7 +37,6 @@ import { tryParsePublicKey } from '@tools/core/pubkey'
 import { useAsync } from 'react-async-hook'
 import { useVsrClient } from '../VoterWeightPlugins/useVsrClient'
 import { useRealmVoterWeightPlugins } from '@hooks/useRealmVoterWeightPlugins'
-import TermsPopupModal from './TermsPopup'
 
 const Notifications = dynamic(() => import('../components/Notification'), {
   ssr: false,

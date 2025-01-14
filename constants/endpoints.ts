@@ -1,7 +1,7 @@
 export const MAINNET_RPC =
   process.env.NEXT_PUBLIC_MAINNET_RPC ||
   process.env.MAINNET_RPC ||
-  'https://sly-patient-waterfall.solana-mainnet.quiknode.pro/bceccc776283213e297966f41ab4fae12c966c7d'
+  'http://realms-realms-c335.mainnet.rpcpool.com/258d3727-bb96-409d-abea-0b1b4c48af29/'
 
 export const DEVNET_RPC =
   process.env.NEXT_PUBLIC_DEVNET_RPC ||

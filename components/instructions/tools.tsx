@@ -345,35 +345,12 @@ export const ACCOUNT_NAMES = {
 // 60% vote threshold on 5b token supply
 // hidden legacy accounts to declutter UI
 export const HIDDEN_GOVERNANCES = new Map<string, string>([
-  ['HfWc8M6Df5wtLg8xg5vti4QKAo9KG4nL5gKQ8B2sjfYC', ''],
-  ['A3Fb876sEiUmDWgrJ1fShASstw8b5wHB6XETzQa8VM7S', ''],
-  ['2j2oe8YXdYJyS7G8CeEW5KARijdjjZkuPy5MnN8gBQqQ', ''],
-  ['56yqzBEr9BqDGjYPJz9G8LVQrbXsQM2t2Yq3Gk8S56d1', ''],
-  ['4styeLGsBRpV4xKsCNMRPb94U7JN8ZXoXJTLZA5hdjo9', ''],
-  ['CKWNNwtn5nbsGMkvtRwHDv4QTyoHMByKVd7Ypo2deNpc', ''],
-  ['G8JgCHfca7PehBwRp1Q91smJ9CXAd8K9e9CpfVjyD2MP', ''],
 ])
 
 // TODO: Add this to on-chain metadata to Proposal account
 // Blacklisted proposals which should not be displayed in the UI
 // hidden legacy accounts to declutter UI
 export const HIDDEN_PROPOSALS = new Map<string, string>([
-  ['E8XgiVpDJgDf4XgBKjZnMs3S1K7cmibtbDqjw5aNobCZ', ''],
-  ['DrhhwYXaY4fvTBoQdNtgwEoTjuQswvDQLfVcgUXgP1Mx', ''],
-  ['CfbCUF7cn6UdWRsGPUUtj4CKMBL7qNCdF1WunED4gYA4', ''],
-  ['Hzv3N2KtVikNoXz6nH9AWvt7Y9Smn8bRQ2gnAeJDkhm1', ''],
-  ['FeFaHN8c3yokUxyJw3F475uegMUoYsYtr4J2DMaS6JZh', ''],
-  ['GqoMraqhfK7ezFiKexRVkbYwvCegs9dgFpXn2f7aeePT', ''],
-  ['CZnFphcs2UmbqppTEP5PkAAF4DqeyFr7fPQ2bunCey2J', ''],
-  ['8ptWWXgb2nLVuMgJ1ZgXJfRaBesBDkyzYarJvWNLECbG', ''],
-  ['7P3dtUTSvcQcjtJpZHZKEzrGvvHQdQGJrtKFLNAYHvpv', ''],
-  ['EVzN1pfZwniGuyp45ZASHo6rU4Z8xx5kWevzDauR8sWp', ''],
-  ['7P3dtUTSvcQcjtJpZHZKEzrGvvHQdQGJrtKFLNAYHvpv', ''],
-  ['H5TnbSBNFKJJwKea8tUj7ETcmhRHXQ1N9XCXBSD6Q9P1', ''],
-  ['GeMQWvFTasBoui11RqRzMtDPQ9b2BkMK8NzepWzvuXw3', ''],
-  ['CRmUPr8CbfPQ4MAoo2yxSf5qL2nPsddL69kowMfp1JYP', ''],
-  ['8msNFq5VBectsGAv66zYx5QRve1p3m6ZEz49xaWX3tbd', ''],
-  ['3jU2YuKXKBw4cWx9taPDfhQZ8RFLmFUx3HLxMrh7w749', ''],
 ])
 
 export const DEFAULT_NATIVE_SOL_MINT =
@@ -393,85 +370,14 @@ export const WSOL_MINT_PK = new PublicKey(WSOL_MINT)
 //Hidden accounts that has some shit coins with 0 value inside but freeze authority
 //blocks closing them
 const HIDDEN_MNGO_TREASURES = [
-  'GZQSF4Fh9xK7rf9WBEhawXYFw8qPXeatZLUqVQeuW3X8',
-  'J6jYLFDWeeGwg4u2TXhKDCcH4fSzJFQyDE2VSv2drRkg',
-  'HXxjhCQwm496HAXsHBWfuVkiXBLinHJqUbVKomCjKsfo',
-  'EwPgko6gXD5PAgQaFo1KD7R9tPUEgRcTAfsGvgdhkP4Z',
-  '6VYcrmbK4QNC7WpfVRXBAXP59ZH2FkUMBoMYhtgENGMn',
-  '4Z8nAK9grjokaUqJNtw2AEkYAR1vcw8pkCWZcbVEEdh5',
-  'FTiWWq3cgETfPkYqP36xFUhT7KMoFYyCiPKeYQU1e4U8',
-  'FrkLPsCadx4tE4qDobbu2GTD5ffjWBpormHbLLy35PUS',
-  'CaoFkVyPJugKMdzDT1NGnsQJ8dWe4kZFaETCbtWz1QBr',
-  'PuXf9LNrmtVDhBTxteNTWS8D2SpzbhYvidkSatjRArt',
 ]
 
 //badly created realms
-export const HIDDEN_REALMS = [
-  'BWnVbUDohApiiaWBNNGcLH2KXRKEoTBJ7schsKQWYAtj',
-  'FsoDEiZ9BoGTAaCLzXkyQWEqNKa5PW2iokzmuD7YsRdL',
-  '9nUyxzVL2FUMuWUiVZG66gwK15CJiM3PoLkfrnGfkvt6', // old Drift dao
-  '7mjEBafqqKA2K6SHezMrDV1zBoyNw6SKFcTsBbH2Kxgb', // openBook v2 council wrong config
-  '6NzVDMfEBJvkFDnjPx53K7mLGW3yQdSjLhsamS8go4cn', // old bonfida dao
+export const HIDDEN_REALMS = [ // old bonfida dao
 ]
 
 //owner and desired accounts we want to show
 const MNGO_AUXILIARY_TOKEN_ACCOUNTS = [
-  {
-    owner: '58apybWwtWwgVfARs7uJ75Vs1csPimnCCFth7cKwTJAe',
-    accounts: ['DiSDgMz4DeNKHXkpqUGoukr1YM9xxc1wH9gusZnMa1ga'],
-  },
-  {
-    owner: '7hqfhmXK6uXQKmNjUVEJo5acDMLcnyN9p9bZ5Dmnifde',
-    accounts: ['2gDu12CM56g18Ukc9R1EdmEbToXqGTrnBEqR3zKfVKgt'],
-  },
-  //treasury management council
-  {
-    owner: '9so7UTo6b6LXBSqdDfh18hjVj8Ng5BmLbYXLB7UrhaaJ',
-    accounts: [
-      'A9xaHx54B9bRYBga4V6LKFrRaARpMJFYVooEXRAanru5',
-      '8Wkbx6Daq3RQY492HaXK2nbVLXKCL5SGcab3RHzBCzpV',
-      '7D2j3MpXMveMEkdR94QfMh5nS3HdFD7uQHKhaLenR8u6',
-      '5d5CU8viHKiwrwjgNUFtb6AxUjdiZ1xmLo2m3AMYa9K5',
-    ],
-  },
-  //boost council
-  {
-    owner: 'BExGoGVK6k6mUL6oHmabbc2EtwNqhJUeNoJWijF6t3ZB',
-    accounts: [
-      'HuDbGjhoPMWxVUxJmaY4uinDF5RmSufg2SCwjxpCRvXX',
-      'AnmvgZbSre3NyGn4CeSNZDTN7NMmribt4eNTFDAQSGuv',
-    ],
-  },
-  //vsr
-  {
-    owner: 'DZZWE1PR8qTkH3dLTrD7kcNEs6xx3GmSuFbzW29dyHv7',
-    accounts: ['CJoHzb9FVJUKanFdmjjXD84Hg94qgE4egu8s2tGYTVdE'],
-  },
-  {
-    owner: 'VrT8f16NLADvYR73YiDMwxZREPbJgiZqLvN6HLQj4hR',
-    accounts: ['BkNq5TQvPkDnQWNgn1j2Q2SAFe3r5m2PazRwC7YUSHAT'],
-  },
-  {
-    owner: '3H5PPK1bhHKmCAG5zwUyxpKDijES3H9uRAUCBrW8rGPX',
-    accounts: ['3sC3vzVz9YoiR12QKgvxHD6Q2LBfhL1ev63tsUaUS2EJ'],
-  },
-  {
-    owner: 'DdZWj3nWSzJMMv1LMTHm9gTJ37wHLNXTMzqjWCokvKEn',
-    accounts: ['6XfCUQuq4juhqWLCW6LeivZd1eGuCRp4Mw3D6nkwXwFG'],
-  },
-  {
-    owner: '7v1dD4kTJcBC7zV9MSrz7Ddyz8Dvs24QUMnZeQQCxeyV',
-    accounts: ['CEGxhB84XffJBfXm8WphwSczrpaJX6cRJjZz3QqNWJSZ'],
-  },
-  {
-    owner: 'A99Whcw3pNdYXQ1DikQsLLNNjbsw8rD1zdvX4LTvZ8pD',
-    accounts: ['CkxhXSSgqBM7HrZE6zrQPBNCb7eHN4nm1FHd3Ad1XARX'],
-  },
-  {
-    owner: 'FRYXAjyVnvXja8chgdq47qL3CKoyBjUg4ro7M7QQn1aD',
-    accounts: ['24frxVoDzo7bAimBU6rDhB1McxWNvzX9qddPMSv9VACZ'],
-  },
-  //
 ]
 
 export const AUXILIARY_TOKEN_ACCOUNTS = {
@@ -543,7 +449,7 @@ export async function getInstructionDescriptor(
     )
   ) {
     descriptors =
-      GOVERNANCE_INSTRUCTIONS['GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw']
+      GOVERNANCE_INSTRUCTIONS['J9uWvULFL47gtCPvgR3oN7W357iehn5WF2Vn9MJvcSxz']
   } else if (isUsingForwardProgram) {
     instructionToDecode = {
       accounts: instructionToDecode.accounts.slice(

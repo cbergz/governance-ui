@@ -16,7 +16,6 @@ import {
 } from '@solana/web3.js'
 import { AccountInfo, MintInfo } from '@solana/spl-token'
 import {
-  AUXILIARY_TOKEN_ACCOUNTS,
   DEFAULT_NATIVE_SOL_MINT,
   DEFAULT_NFT_TREASURY_MINT,
   HIDDEN_GOVERNANCES,

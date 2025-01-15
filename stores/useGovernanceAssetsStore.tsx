@@ -112,6 +112,25 @@ const batchProcess = async <T, R>(
   return results;
 };
 
+interface SingleRPCResponse {
+  jsonrpc: string;
+  id: number;
+  result: {
+    account: {
+      data: [string, string]; // [encodedData, encoding]
+      executable: boolean;
+      lamports: number;
+      owner: string;
+      rentEpoch: number;
+    };
+    pubkey: string;
+  }[];
+}
+
+interface BatchRPCResponse {
+  data: SingleRPCResponse[];
+}
+
 interface TokenAccountInfo {
   publicKey: PublicKey;
   account: AccountInfo;
@@ -122,6 +141,7 @@ class RateLimiter {
   private processing = false;
   private lastRequestTime = 0;
   private readonly minInterval: number;
+  private consecutiveErrors = 0;
 
   constructor(requestsPerSecond: number) {
     this.minInterval = 1000 / requestsPerSecond;
@@ -132,8 +152,10 @@ class RateLimiter {
       this.queue.push(async () => {
         try {
           const result = await this.executeWithBackoff(fn);
+          this.consecutiveErrors = 0; // Reset error count on success
           resolve(result);
         } catch (error) {
+          this.consecutiveErrors++;
           reject(error);
         }
       });
@@ -152,15 +174,20 @@ class RateLimiter {
     try {
       const now = Date.now();
       const timeToWait = Math.max(0, this.lastRequestTime + this.minInterval - now);
-      if (timeToWait > 0) {
-        await new Promise(resolve => setTimeout(resolve, timeToWait));
+      
+      // Add additional delay based on consecutive errors
+      const additionalDelay = Math.min(this.consecutiveErrors * 1000, 5000);
+      
+      if (timeToWait > 0 || additionalDelay > 0) {
+        await new Promise(resolve => setTimeout(resolve, timeToWait + additionalDelay));
       }
       
       this.lastRequestTime = Date.now();
       return await fn();
     } catch (error: any) {
       if (error?.response?.status === 429 && attempt < maxAttempts) {
-        const backoffTime = Math.min(1000 * Math.pow(2, attempt), 10000);
+        const backoffTime = Math.min(1000 * Math.pow(2, attempt + this.consecutiveErrors), 30000);
+        console.log(`Rate limited, waiting ${backoffTime}ms before retry`);
         await new Promise(resolve => setTimeout(resolve, backoffTime));
         return this.executeWithBackoff(fn, attempt + 1, maxAttempts);
       }
@@ -173,15 +200,20 @@ class RateLimiter {
     while (this.queue.length > 0) {
       const task = this.queue.shift();
       if (task) {
-        await task();
+        try {
+          await task();
+        } catch (error) {
+          console.warn('Task failed:', error);
+          // Continue processing queue even if one task fails
+        }
       }
     }
     this.processing = false;
   }
 }
 
-// Create a global rate limiter instance
-const rateLimiter = new RateLimiter(5); 
+// Create rate limiter with more conservative settings
+const rateLimiter = new RateLimiter(3);
 
 const useGovernanceAssetsStore = create<GovernanceAssetsStore>((set, _get) => ({
   ...defaultState,
@@ -709,49 +741,81 @@ const getTokenAccountsInfo = async (
   { endpoint, current: { commitment } }: ConnectionContext,
   publicKeys: PublicKey[]
 ): Promise<TokenAccountInfo[]> => {
-  const BATCH_SIZE = 10;
+  const BATCH_SIZE = 5;
   const results: TokenAccountInfo[] = [];
   
   for (let i = 0; i < publicKeys.length; i += BATCH_SIZE) {
     const batch = publicKeys.slice(i, i + BATCH_SIZE);
-    const batchResults = await rateLimiter.schedule(async () => {
-      const { data: tokenAccountsInfoJson } = await axios.post(
-        endpoint,
-        batch.map((publicKey) => ({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getProgramAccounts',
-          params: [
-            TOKEN_PROGRAM_ID.toBase58(),
-            {
-              commitment,
-              encoding: 'base64',
-              filters: [
-                { dataSize: 165 },
-                {
-                  memcmp: {
-                    offset: tokenAccountOwnerOffset,
-                    bytes: publicKey.toBase58(),
-                  },
-                },
-              ],
-            },
-          ],
-        }))
-      );
-
-      return tokenAccountsInfoJson.reduce((tokenAccountsInfo, { result }) => {
-        result.forEach(({ account: { data: [encodedData] }, pubkey }) => {
-          const publicKey = new PublicKey(pubkey);
-          const data = Buffer.from(encodedData, 'base64');
-          const account = parseTokenAccountData(publicKey, data);
-          tokenAccountsInfo.push({ publicKey, account });
-        });
-        return tokenAccountsInfo;
-      }, [] as TokenAccountInfo[]);
-    });
     
-    results.push(...batchResults);
+    try {
+      const batchResults = await rateLimiter.schedule(async () => {
+        const response = await axios.post<BatchRPCResponse>(
+          endpoint,
+          batch.map((publicKey) => ({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getProgramAccounts',
+            params: [
+              TOKEN_PROGRAM_ID.toBase58(),
+              {
+                commitment,
+                encoding: 'base64',
+                filters: [
+                  { dataSize: 165 },
+                  {
+                    memcmp: {
+                      offset: tokenAccountOwnerOffset,
+                      bytes: publicKey.toBase58(),
+                    },
+                  },
+                ],
+              },
+            ],
+          }))
+        );
+
+        if (!response?.data) {
+          console.warn('No data in response for batch:', batch);
+          return [];
+        }
+
+        const tokenAccounts: TokenAccountInfo[] = [];
+
+        response.data.data.forEach((rpcResponse) => {
+          if (rpcResponse?.result) {
+            rpcResponse.result.forEach((item) => {
+              try {
+                const publicKey = new PublicKey(item.pubkey);
+                const data = Buffer.from(item.account.data[0], 'base64');
+                const account = parseTokenAccountData(publicKey, data);
+                
+                if (account) {
+                  tokenAccounts.push({ publicKey, account });
+                }
+              } catch (parseError) {
+                console.warn('Error parsing token account:', parseError);
+              }
+            });
+          }
+        });
+
+        return tokenAccounts;
+      });
+      
+      results.push(...batchResults);
+      
+      // Add a small delay between batches
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+    } catch (error) {
+      console.error('Error processing batch:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 429) {
+        // If we hit rate limit, wait longer before retrying
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        i -= BATCH_SIZE; // Retry this batch
+        continue;
+      }
+    }
   }
 
   return results;
@@ -865,24 +929,36 @@ const loadGovernedTokenAccounts = async (
       ...governancesArray.map((g) => g.pubkey),
     ]);
 
+    console.log('Starting to load governed token accounts...');
+
     // Process in smaller chunks with correct typing
     const tokenAccountsInfo: TokenAccountInfo[] = [];
-    for (let i = 0; i < tokenAccountsOwnedByGovernances.length; i += 10) {
-      const chunk = tokenAccountsOwnedByGovernances.slice(i, i + 10);
-      const chunkResults = await getTokenAccountsInfo(connection, chunk);
-      tokenAccountsInfo.push(...chunkResults);
+    for (let i = 0; i < tokenAccountsOwnedByGovernances.length; i += 5) {
+      const chunk = tokenAccountsOwnedByGovernances.slice(i, i + 5);
+      try {
+        const chunkResults = await getTokenAccountsInfo(connection, chunk);
+        tokenAccountsInfo.push(...chunkResults);
+        console.log(`Processed ${tokenAccountsInfo.length} token accounts so far...`);
+      } catch (error) {
+        console.warn('Error processing chunk:', error);
+        // Continue with next chunk even if one fails
+      }
     }
 
     // Process token assets in chunks
     const governedTokenAccounts: AssetAccount[] = [];
-    for (let i = 0; i < tokenAccountsInfo.length; i += 10) {
-      const chunk = tokenAccountsInfo.slice(i, i + 10);
-      const chunkResults = await getTokenAssetAccounts(
-        chunk,
-        governancesArray,
-        connection
-      );
-      governedTokenAccounts.push(...chunkResults);
+    for (let i = 0; i < tokenAccountsInfo.length; i += 5) {
+      const chunk = tokenAccountsInfo.slice(i, i + 5);
+      try {
+        const chunkResults = await getTokenAssetAccounts(
+          chunk,
+          governancesArray,
+          connection
+        );
+        governedTokenAccounts.push(...chunkResults);
+      } catch (error) {
+        console.warn('Error processing asset chunk:', error);
+      }
     }
 
     return uniqueGovernedTokenAccounts(governedTokenAccounts);

@@ -743,80 +743,112 @@ const getTokenAccountsInfo = async (
 ): Promise<TokenAccountInfo[]> => {
   const BATCH_SIZE = 5;
   const results: TokenAccountInfo[] = [];
+
+  const url = new URL(endpoint);
+  const apiKey = url.searchParams.get('api-key');
+  const baseEndpoint = endpoint.split('?')[0];
+
+  const axiosConfig = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    }
+  };
   
   for (let i = 0; i < publicKeys.length; i += BATCH_SIZE) {
     const batch = publicKeys.slice(i, i + BATCH_SIZE);
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
     
-    try {
-      const batchResults = await rateLimiter.schedule(async () => {
-        const response = await axios.post<BatchRPCResponse>(
-          endpoint,
-          batch.map((publicKey) => ({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'getProgramAccounts',
-            params: [
-              TOKEN_PROGRAM_ID.toBase58(),
-              {
-                commitment,
-                encoding: 'base64',
-                filters: [
-                  { dataSize: 165 },
-                  {
-                    memcmp: {
-                      offset: tokenAccountOwnerOffset,
-                      bytes: publicKey.toBase58(),
+    while (retryCount < MAX_RETRIES) {
+      try {
+        const batchResults = await rateLimiter.schedule(async () => {
+          const response = await axios.post<BatchRPCResponse>(
+            baseEndpoint,
+            batch.map((publicKey) => ({
+              jsonrpc: '2.0',
+              id: 1,
+              method: 'getProgramAccounts',
+              params: [
+                TOKEN_PROGRAM_ID.toBase58(),
+                {
+                  commitment,
+                  encoding: 'base64',
+                  filters: [
+                    { dataSize: 165 },
+                    {
+                      memcmp: {
+                        offset: tokenAccountOwnerOffset,
+                        bytes: publicKey.toBase58(),
+                      },
                     },
-                  },
-                ],
-              },
-            ],
-          }))
-        );
+                  ],
+                },
+              ],
+            })),
+            axiosConfig
+          );
 
-        if (!response?.data || !Array.isArray(response.data.data)) {
-          console.warn('Invalid response structure:', response?.data);
-          return [];
+          if (!response?.data || !Array.isArray(response.data.data)) {
+            console.warn('Invalid response structure:', response?.data);
+            return [];
+          }
+
+          const tokenAccounts: TokenAccountInfo[] = [];
+
+          response.data.data.forEach((rpcResponse) => {
+            if (rpcResponse?.result) {
+              rpcResponse.result.forEach((item) => {
+                try {
+                  const publicKey = new PublicKey(item.pubkey);
+                  const data = Buffer.from(item.account.data[0], 'base64');
+                  const account = parseTokenAccountData(publicKey, data);
+                  if (account) {
+                    tokenAccounts.push({ publicKey, account });
+                  }
+                } catch (parseError) {
+                  console.warn('Error parsing token account:', parseError);
+                }
+              });
+            } else {
+              console.warn('rpcResponse.result is undefined or null for:', rpcResponse);
+            }
+          });
+
+          return tokenAccounts;
+        });
+        
+        results.push(...batchResults);
+
+        break;
+        
+      } catch (error) {
+        const isAxiosError = axios.isAxiosError(error);
+        if (isAxiosError) {
+          const status = error.response?.status;
+
+          if (status == 401) {
+            throw new Error('Invalid API key or unauthorized acced.')
+          }
+
+          if (status === 429) {
+            const waitTime = Math.min(1000 * Math.pow(2, retryCount), 8000); // Exponential backoff
+            console.warn(`Rate limited, waiting ${waitTime}ms before retry`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            retryCount++;
+            continue;
+          }
         }
 
-        const tokenAccounts: TokenAccountInfo[] = [];
+        console.error('Error processing batch.', error);
+        retryCount++
 
-        response.data.data.forEach((rpcResponse) => {
-          if (rpcResponse?.result) {
-            rpcResponse.result.forEach((item) => {
-              try {
-                const publicKey = new PublicKey(item.pubkey);
-                const data = Buffer.from(item.account.data[0], 'base64');
-                const account = parseTokenAccountData(publicKey, data);
-                if (account) {
-                  tokenAccounts.push({ publicKey, account });
-                }
-              } catch (parseError) {
-                console.warn('Error parsing token account:', parseError);
-              }
-            });
-          } else {
-            console.warn('rpcResponse.result is undefined or null for:', rpcResponse);
-          }
-        });
-
-        return tokenAccounts;
-      });
-      
-      results.push(...batchResults);
-      
-      // Add a small delay between batches
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-    } catch (error) {
-      console.error('Error processing batch:', error);
-      if (axios.isAxiosError(error) && error.response?.status === 429) {
-        // If we hit rate limit, wait longer before retrying
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        i -= BATCH_SIZE; // Retry this batch
-        continue;
+        if (retryCount === MAX_RETRIES) {
+          console.error(`Failed to process batch after ${MAX_RETRIES} retries`);
+        }
       }
     }
+    await new Promise(resolve => setTimeout(resolve, 200));
   }
 
   return results;

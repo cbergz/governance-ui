@@ -112,6 +112,11 @@ const batchProcess = async <T, R>(
   return results;
 };
 
+interface TokenAccountInfo {
+  publicKey: PublicKey;
+  account: AccountInfo;
+}
+
 class RateLimiter {
   private queue: Array<() => Promise<void>> = [];
   private processing = false;
@@ -423,10 +428,7 @@ const uniquePublicKey = (array: PublicKey[]): PublicKey[] => {
 }
 
 const getTokenAssetAccounts = async (
-  tokenAccounts: {
-    publicKey: PublicKey
-    account: AccountInfo
-  }[],
+  tokenAccounts: TokenAccountInfo[],
   governances: GovernanceProgramAccountWithNativeTreasuryAddress[],
   connection: ConnectionContext
 ) => {
@@ -706,73 +708,53 @@ const getMintAccountsInfo = async (
 const getTokenAccountsInfo = async (
   { endpoint, current: { commitment } }: ConnectionContext,
   publicKeys: PublicKey[]
-): Promise<TokenProgramAccount<TokenAccount>[]> => {
-  const { data: tokenAccountsInfoJson } = await axios.post<
-    unknown,
-    {
-      data: {
-        result: {
-          account: {
-            data: [string, 'base64']
-          }
-          pubkey: string
-        }[]
-      }[]
-    }
-  >(
-    endpoint,
-    publicKeys.map((publicKey) => ({
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'getProgramAccounts',
-      params: [
-        TOKEN_PROGRAM_ID.toBase58(),
-        {
-          commitment,
-          encoding: 'base64',
-          filters: [
+): Promise<TokenAccountInfo[]> => {
+  const BATCH_SIZE = 10;
+  const results: TokenAccountInfo[] = [];
+  
+  for (let i = 0; i < publicKeys.length; i += BATCH_SIZE) {
+    const batch = publicKeys.slice(i, i + BATCH_SIZE);
+    const batchResults = await rateLimiter.schedule(async () => {
+      const { data: tokenAccountsInfoJson } = await axios.post(
+        endpoint,
+        batch.map((publicKey) => ({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getProgramAccounts',
+          params: [
+            TOKEN_PROGRAM_ID.toBase58(),
             {
-              // number of bytes
-              dataSize: 165,
-            },
-            {
-              memcmp: {
-                // number of bytes
-                offset: tokenAccountOwnerOffset,
-                bytes: publicKey.toBase58(),
-              },
+              commitment,
+              encoding: 'base64',
+              filters: [
+                { dataSize: 165 },
+                {
+                  memcmp: {
+                    offset: tokenAccountOwnerOffset,
+                    bytes: publicKey.toBase58(),
+                  },
+                },
+              ],
             },
           ],
-        },
-      ],
-    }))
-  )
+        }))
+      );
 
-  if (!tokenAccountsInfoJson) {
-    throw new Error(
-      `Cannot load information about token accounts ${publicKeys.map((x) =>
-        x.toBase58()
-      )}`
-    )
+      return tokenAccountsInfoJson.reduce((tokenAccountsInfo, { result }) => {
+        result.forEach(({ account: { data: [encodedData] }, pubkey }) => {
+          const publicKey = new PublicKey(pubkey);
+          const data = Buffer.from(encodedData, 'base64');
+          const account = parseTokenAccountData(publicKey, data);
+          tokenAccountsInfo.push({ publicKey, account });
+        });
+        return tokenAccountsInfo;
+      }, [] as TokenAccountInfo[]);
+    });
+    
+    results.push(...batchResults);
   }
 
-  return tokenAccountsInfoJson.reduce((tokenAccountsInfo, { result }) => {
-    result.forEach(
-      ({
-        account: {
-          data: [encodedData],
-        },
-        pubkey,
-      }) => {
-        const publicKey = new PublicKey(pubkey)
-        const data = Buffer.from(encodedData, 'base64')
-        const account = parseTokenAccountData(publicKey, data)
-        tokenAccountsInfo.push({ publicKey, account })
-      }
-    )
-
-    return tokenAccountsInfo
-  }, [] as TokenProgramAccount<TokenAccount>[])
+  return results;
 }
 
 const getSolAccountsInfo = async (
@@ -884,7 +866,7 @@ const loadGovernedTokenAccounts = async (
     ]);
 
     // Process in smaller chunks with correct typing
-    const tokenAccountsInfo: TokenAccount[] = [];
+    const tokenAccountsInfo: TokenAccountInfo[] = [];
     for (let i = 0; i < tokenAccountsOwnedByGovernances.length; i += 10) {
       const chunk = tokenAccountsOwnedByGovernances.slice(i, i + 10);
       const chunkResults = await getTokenAccountsInfo(connection, chunk);

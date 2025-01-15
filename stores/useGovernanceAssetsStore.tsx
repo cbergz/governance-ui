@@ -50,6 +50,7 @@ import {
 import group from '@utils/group'
 import { getFilteredProgramAccounts } from '@utils/helpers'
 import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes'
+import { AxiosRequestConfig } from 'axios';
 
 const tokenAccountOwnerOffset = 32
 const programAccountOwnerOffset = 13
@@ -748,12 +749,12 @@ const getTokenAccountsInfo = async (
   const apiKey = url.searchParams.get('api-key');
   const baseEndpoint = endpoint.split('?')[0];
 
-  const axiosConfig = {
+  const axiosConfig: AxiosRequestConfig = {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': apiKey,
       'x-api-key': apiKey,
-    }
+    } as const
   };
 
   console.debug('Using endpoint:', baseEndpoint);

@@ -94,6 +94,24 @@ const defaultState = {
   loadMintAccounts: false,
 }
 
+const BATCH_SIZE = 25; // Adjust this number based on your RPC endpoint's capacity
+
+const batchProcess = async <T, R>(
+  items: T[],
+  processFn: (batch: T[]) => Promise<R[]>,
+  batchSize = BATCH_SIZE
+): Promise<R[]> => {
+  const results: R[] = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await processFn(batch);
+    results.push(...batchResults);
+    // Add a small delay between batches to prevent overwhelming the RPC
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  return results;
+};
+
 const useGovernanceAssetsStore = create<GovernanceAssetsStore>((set, _get) => ({
   ...defaultState,
 
@@ -800,23 +818,15 @@ const loadGovernedTokenAccounts = async (
     // ...auxiliaryTokenAccounts.map((x) => new PublicKey(x.owner)),
   ])
 
-  const tokenAccountsInfo = (
-    await Promise.all(
-      // Load infos in batch, cannot load 9999 accounts within one request
-      group(tokenAccountsOwnedByGovernances, 100).map((group) =>
-        getTokenAccountsInfo(connection, group)
-      )
-    )
-  ).flat()
+  const tokenAccountsInfo = await batchProcess(
+    tokenAccountsOwnedByGovernances,
+    async (batch) => getTokenAccountsInfo(connection, batch)
+  );
 
-  const governedTokenAccounts = (
-    await Promise.all(
-      // Load infos in batch, cannot load 9999 accounts within one request
-      group(tokenAccountsInfo).map((group) =>
-        getTokenAssetAccounts(group, governancesArray, connection)
-      )
-    )
-  ).flat()
+  const governedTokenAccounts = await batchProcess(
+    tokenAccountsInfo.flat(),
+    async (batch) => getTokenAssetAccounts(batch, governancesArray, connection)
+  );
 
   // Remove potential accounts duplicate
   return uniqueGovernedTokenAccounts(governedTokenAccounts)

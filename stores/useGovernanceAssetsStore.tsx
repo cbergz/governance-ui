@@ -751,9 +751,13 @@ const getTokenAccountsInfo = async (
   const axiosConfig = {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      'Authorization': apiKey,
+      'x-api-key': apiKey,
     }
   };
+
+  console.debug('Using endpoint:', baseEndpoint);
+  console.debug('Headers:', axiosConfig.headers);
   
   for (let i = 0; i < publicKeys.length; i += BATCH_SIZE) {
     const batch = publicKeys.slice(i, i + BATCH_SIZE);
@@ -763,42 +767,49 @@ const getTokenAccountsInfo = async (
     while (retryCount < MAX_RETRIES) {
       try {
         const batchResults = await rateLimiter.schedule(async () => {
+          const payload = batch.map((publicKey) => ({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getProgramAccounts',
+            params: [
+              TOKEN_PROGRAM_ID.toBase58(),
+              {
+                commitment,
+                encoding: 'base64',
+                filters: [
+                  { dataSize: 165 },
+                  {
+                    memcmp: {
+                      offset: tokenAccountOwnerOffset,
+                      bytes: publicKey.toBase58(),
+                    },
+                  },
+                ],
+              },
+            ],
+          }));
+
+          console.debug('Sending request with payload:', JSON.stringify(payload[0]));
+          
           const response = await axios.post<BatchRPCResponse>(
             baseEndpoint,
-            batch.map((publicKey) => ({
-              jsonrpc: '2.0',
-              id: 1,
-              method: 'getProgramAccounts',
-              params: [
-                TOKEN_PROGRAM_ID.toBase58(),
-                {
-                  commitment,
-                  encoding: 'base64',
-                  filters: [
-                    { dataSize: 165 },
-                    {
-                      memcmp: {
-                        offset: tokenAccountOwnerOffset,
-                        bytes: publicKey.toBase58(),
-                      },
-                    },
-                  ],
-                },
-              ],
-            })),
+            payload,
             axiosConfig
           );
 
-          if (!response?.data || !Array.isArray(response.data.data)) {
-            console.warn('Invalid response structure:', response?.data);
+          if (!response?.data) {
+            console.warn('Empty response received');
             return [];
           }
 
+          const responseData = Array.isArray(response.data) ? response.data : [response.data];
+
           const tokenAccounts: TokenAccountInfo[] = [];
 
-          response.data.data.forEach((rpcResponse) => {
+          responseData.forEach((rpcResponse) => {
             if (rpcResponse?.result) {
-              rpcResponse.result.forEach((item) => {
+              const results = Array.isArray(rpcResponse.result) ? rpcResponse.result : [rpcResponse.result];
+              results.forEach((item) => {
                 try {
                   const publicKey = new PublicKey(item.pubkey);
                   const data = Buffer.from(item.account.data[0], 'base64');
@@ -811,7 +822,7 @@ const getTokenAccountsInfo = async (
                 }
               });
             } else {
-              console.warn('rpcResponse.result is undefined or null for:', rpcResponse);
+              console.warn('Invalid RPC response:', rpcResponse);
             }
           });
 
@@ -825,10 +836,18 @@ const getTokenAccountsInfo = async (
       } catch (error) {
         const isAxiosError = axios.isAxiosError(error);
         if (isAxiosError) {
+          console.error('Axios error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            headers: error.response?.headers
+          });
+          
           const status = error.response?.status;
 
-          if (status == 401) {
-            throw new Error('Invalid API key or unauthorized acced.')
+          if (status == 401 || status == 403) {
+            console.error('Authentication error response:', error.response?.data);
+            throw new Error(`Authentication failed with status ${status}. Please check your Helius API key.`);
           }
 
           if (status === 429) {

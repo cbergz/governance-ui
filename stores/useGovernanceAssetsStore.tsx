@@ -112,6 +112,72 @@ const batchProcess = async <T, R>(
   return results;
 };
 
+class RateLimiter {
+  private queue: Array<() => Promise<void>> = [];
+  private processing = false;
+  private lastRequestTime = 0;
+  private readonly minInterval: number;
+
+  constructor(requestsPerSecond: number) {
+    this.minInterval = 1000 / requestsPerSecond;
+  }
+
+  async schedule<T>(fn: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          const result = await this.executeWithBackoff(fn);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      
+      if (!this.processing) {
+        this.processQueue();
+      }
+    });
+  }
+
+  private async executeWithBackoff(
+    fn: () => Promise<any>,
+    attempt = 1,
+    maxAttempts = 5
+  ): Promise<any> {
+    try {
+      const now = Date.now();
+      const timeToWait = Math.max(0, this.lastRequestTime + this.minInterval - now);
+      if (timeToWait > 0) {
+        await new Promise(resolve => setTimeout(resolve, timeToWait));
+      }
+      
+      this.lastRequestTime = Date.now();
+      return await fn();
+    } catch (error: any) {
+      if (error?.response?.status === 429 && attempt < maxAttempts) {
+        const backoffTime = Math.min(1000 * Math.pow(2, attempt), 10000);
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+        return this.executeWithBackoff(fn, attempt + 1, maxAttempts);
+      }
+      throw error;
+    }
+  }
+
+  private async processQueue() {
+    this.processing = true;
+    while (this.queue.length > 0) {
+      const task = this.queue.shift();
+      if (task) {
+        await task();
+      }
+    }
+    this.processing = false;
+  }
+}
+
+// Create a global rate limiter instance
+const rateLimiter = new RateLimiter(5); 
+
 const useGovernanceAssetsStore = create<GovernanceAssetsStore>((set, _get) => ({
   ...defaultState,
 
@@ -811,25 +877,37 @@ const loadGovernedTokenAccounts = async (
   // ]?.length
   //   ? AUXILIARY_TOKEN_ACCOUNTS[realm.account.name]
   //   : []
+  try {
+    const tokenAccountsOwnedByGovernances = uniquePublicKey([
+      ...governancesArray.map((x) => x.nativeTreasuryAddress),
+      ...governancesArray.map((g) => g.pubkey),
+    ]);
 
-  const tokenAccountsOwnedByGovernances = uniquePublicKey([
-    ...governancesArray.map((x) => x.nativeTreasuryAddress),
-    ...governancesArray.map((g) => g.pubkey),
-    // ...auxiliaryTokenAccounts.map((x) => new PublicKey(x.owner)),
-  ])
+    // Process in smaller chunks with correct typing
+    const tokenAccountsInfo: TokenAccount[] = [];
+    for (let i = 0; i < tokenAccountsOwnedByGovernances.length; i += 10) {
+      const chunk = tokenAccountsOwnedByGovernances.slice(i, i + 10);
+      const chunkResults = await getTokenAccountsInfo(connection, chunk);
+      tokenAccountsInfo.push(...chunkResults);
+    }
 
-  const tokenAccountsInfo = await batchProcess(
-    tokenAccountsOwnedByGovernances,
-    async (batch) => getTokenAccountsInfo(connection, batch)
-  );
+    // Process token assets in chunks
+    const governedTokenAccounts: AssetAccount[] = [];
+    for (let i = 0; i < tokenAccountsInfo.length; i += 10) {
+      const chunk = tokenAccountsInfo.slice(i, i + 10);
+      const chunkResults = await getTokenAssetAccounts(
+        chunk,
+        governancesArray,
+        connection
+      );
+      governedTokenAccounts.push(...chunkResults);
+    }
 
-  const governedTokenAccounts = await batchProcess(
-    tokenAccountsInfo.flat(),
-    async (batch) => getTokenAssetAccounts(batch, governancesArray, connection)
-  );
-
-  // Remove potential accounts duplicate
-  return uniqueGovernedTokenAccounts(governedTokenAccounts)
+    return uniqueGovernedTokenAccounts(governedTokenAccounts);
+  } catch (error) {
+    console.error('Error loading governed token accounts:', error);
+    throw error;
+  }
 }
 
 const loadStakeAccounts = async (

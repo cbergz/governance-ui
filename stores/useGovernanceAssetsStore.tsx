@@ -774,8 +774,8 @@ const getTokenAccountsInfo = async (
           }))
         );
 
-        if (!response?.data) {
-          console.warn('No data in response for batch:', batch);
+        if (!response?.data || !Array.isArray(response.data.data)) {
+          console.warn('Invalid response structure:', response?.data);
           return [];
         }
 
@@ -788,7 +788,6 @@ const getTokenAccountsInfo = async (
                 const publicKey = new PublicKey(item.pubkey);
                 const data = Buffer.from(item.account.data[0], 'base64');
                 const account = parseTokenAccountData(publicKey, data);
-                
                 if (account) {
                   tokenAccounts.push({ publicKey, account });
                 }
@@ -796,6 +795,8 @@ const getTokenAccountsInfo = async (
                 console.warn('Error parsing token account:', parseError);
               }
             });
+          } else {
+            console.warn('rpcResponse.result is undefined or null for:', rpcResponse);
           }
         });
 
